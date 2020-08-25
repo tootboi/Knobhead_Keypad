@@ -2,6 +2,9 @@
 #include <HID-Project.h>
 #include <Keypad.h>
 
+//variable for capsLock led
+const int capsLed = A0;
+
 //variables for rotary encoder
 #define outputA 2
 #define outputB 3
@@ -25,6 +28,9 @@ Keypad keypad = Keypad(makeKeymap(keys), row_pins, column_pins, ROW_NUM, COLUMN_
 void setup() {
   Serial.begin(9600);
 
+  //setup for capsLock
+  pinMode(capsLed, OUTPUT);
+
   //setup for rotarty encoder
   pinMode(outputA,INPUT_PULLUP);
   pinMode(outputB,INPUT_PULLUP);
@@ -32,9 +38,17 @@ void setup() {
 
   Consumer.begin(); //For writing media keys.
   Keyboard.begin(); //For writing normal keys.
+  BootKeyboard.begin(); //For keyboard leds.
 }
 
 void loop() {
+  //code for capsLock led
+  if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {
+    digitalWrite(capsLed, HIGH);
+  } else {
+    digitalWrite(capsLed, LOW);
+  }
+
   //code for rotary encoder
   aState = digitalRead(outputA);
   if(aState != prevAState) {
