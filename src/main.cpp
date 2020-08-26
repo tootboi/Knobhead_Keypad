@@ -12,16 +12,26 @@ int counter = 0;
 int aState;
 int prevAState;
 
+#define encoderBtn 16
+int btnState = 1;
+int pressFreq = 0;
+bool pressed = false;
+int timeElapsed = 0;
+int pressTime = 0;
+int prevPressTime = 0;
+int clickCount = 0;
+int currTime = 0;
+int doubleClickTiming = 250;    //change this value to adjust the timing of double clicks.
+
 //variables for keypad matrix
-const int  ROW_NUM = 4;
+const int  ROW_NUM = 3;
 const int COLUMN_NUM = 3;
 char keys[ROW_NUM][COLUMN_NUM] = {
-  {' ', '0', ' '},
   {'1', '2', '3'},
   {'4', '5', '6'},
   {'7', '8', '9'}
 };
-byte row_pins[ROW_NUM] = {4, 5, 6, 7};
+byte row_pins[ROW_NUM] = {5, 6, 7};
 byte column_pins[COLUMN_NUM] = {8, 9, 10};
 Keypad keypad = Keypad(makeKeymap(keys), row_pins, column_pins, ROW_NUM, COLUMN_NUM);
 
@@ -35,6 +45,7 @@ void setup() {
   pinMode(outputA,INPUT_PULLUP);
   pinMode(outputB,INPUT_PULLUP);
   prevAState = digitalRead(outputA);
+  pinMode(encoderBtn, INPUT_PULLUP);
 
   Consumer.begin(); //For writing media keys.
   Keyboard.begin(); //For writing normal keys.
@@ -68,15 +79,45 @@ void loop() {
   }
   prevAState = aState;
 
+    //code for encoder btn
+  btnState = digitalRead(encoderBtn);
+  if(btnState == LOW) {
+    if(pressed == false) {
+      pressTime = millis();
+      if(clickCount > 0) {
+        pressFreq = pressTime - prevPressTime;
+      }
+      prevPressTime = pressTime;
+      clickCount++;
+      }
+    pressed = true;
+  } else {
+    pressed = false;
+  }
+
+  currTime = millis();
+  timeElapsed = currTime - pressTime;   //time elapsed since last btn press
+
+  if(clickCount == 2 && pressFreq < doubleClickTiming) {    //for double click.
+    clickCount = 0;
+    Keyboard.print("Yes this works. ");
+    //for debugging
+    Serial.print(pressFreq);
+    Serial.println(" double clicked");
+  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming) {    //for single click
+    clickCount = 0;
+    Consumer.write(MEDIA_VOLUME_MUTE);
+    //for debugging
+    Serial.print(timeElapsed);
+    Serial.println(" single clicked");
+  }
+
   //code for keypad
   char key = keypad.getKey();
   if(key){
     Serial.println(key);
     switch (key)
     {
-    case '0':
-      Consumer.write(MEDIA_VOLUME_MUTE);
-      break;
     case '1':
       Consumer.write(CONSUMER_CALCULATOR);
       break;
