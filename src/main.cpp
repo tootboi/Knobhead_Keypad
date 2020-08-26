@@ -66,12 +66,12 @@ void loop() {
     if(digitalRead(outputB) != aState) {
       counter ++;
       if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        Consumer.write(MEDIA_VOLUME_UP);
+        Consumer.write(MEDIA_VOLUME_UP);    //change this line to modify functions.
       }
     } else {
       counter --;
       if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        Consumer.write(MEDIA_VOLUME_DOWN);
+        Consumer.write(MEDIA_VOLUME_DOWN);    //change this line to modify functions.
       }
     }
     Serial.print("Position: ");
@@ -100,14 +100,14 @@ void loop() {
 
   if(clickCount == 2 && pressFreq < doubleClickTiming) {    //for double click.
     clickCount = 0;
-    Keyboard.print("Yes this works. ");
-    //for debugging
+    Keyboard.print("Yes this works. ");    //change this line to modify functions.
+      //for debugging
     Serial.print(pressFreq);
     Serial.println(" double clicked");
   } else if(clickCount == 1 && timeElapsed >= doubleClickTiming) {    //for single click
     clickCount = 0;
-    Consumer.write(MEDIA_VOLUME_MUTE);
-    //for debugging
+    Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
+      //for debugging
     Serial.print(timeElapsed);
     Serial.println(" single clicked");
   }
@@ -119,36 +119,36 @@ void loop() {
     switch (key)
     {
     case '1':
-      Consumer.write(CONSUMER_CALCULATOR);
+      Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
       break;
     case '2':
-      //code
+      //code    //change this line to modify functions.
       break;
     case '3':
-      Keyboard.press(KEY_PAGE_UP);
+      Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
       break;
     case '4':
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('z');
+      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+      Keyboard.press('z');    //change this line to modify functions.
       break;
     case '5':
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('y');
+      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+      Keyboard.press('y');    //change this line to modify functions.
       break;
     case '6':
-      Keyboard.press(KEY_PAGE_DOWN);
+      Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
       break;
     case '7':
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('x');
+      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+      Keyboard.press('x');    //change this line to modify functions.
       break;
     case '8':
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('c');
+      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+      Keyboard.press('c');    //change this line to modify functions.
       break;
     case '9':
-      Keyboard.press(KEY_LEFT_CTRL);
-      Keyboard.press('v');
+      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+      Keyboard.press('v');    //change this line to modify functions.
       break;
 
     default:
