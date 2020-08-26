@@ -5,6 +5,11 @@
 //variable for capsLock led
 const int capsLed = A0;
 
+//variable for layers
+int layer = 0;
+const int bit1 = A1;
+const int bit0 = A2;
+
 //variables for rotary encoder
 #define outputA 2
 #define outputB 3
@@ -40,6 +45,10 @@ void setup() {
 
   //setup for capsLock
   pinMode(capsLed, OUTPUT);
+
+  //setup for layer LEDs
+  pinMode(bit0, OUTPUT);
+  pinMode(bit1, OUTPUT);
 
   //setup for rotarty encoder
   pinMode(outputA,INPUT_PULLUP);
@@ -100,9 +109,14 @@ void loop() {
 
   if(clickCount == 2 && pressFreq < doubleClickTiming) {    //for double click.
     clickCount = 0;
-    Keyboard.print("Yes this works. ");    //change this line to modify functions.
+    //for changing layer
+    if(layer < 3) {
+      layer++;
+    } else {
+      layer = 0;
+    }
       //for debugging
-    Serial.print(pressFreq);
+    Serial.print(layer);
     Serial.println(" double clicked");
   } else if(clickCount == 1 && timeElapsed >= doubleClickTiming) {    //for single click
     clickCount = 0;
@@ -114,46 +128,185 @@ void loop() {
 
   //code for keypad
   char key = keypad.getKey();
-  if(key){
-    Serial.println(key);
-    switch (key)
-    {
-    case '1':
-      Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+  switch (layer) {
+    case 0:
+      //code for layer LEDs
+      digitalWrite(bit1, LOW);
+      digitalWrite(bit0, LOW);
+      //code for keypad
+      if(key){
+        Serial.println(key);
+        switch (key) {
+        case '1':
+          Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+          break;
+        case '2':
+          Serial.println("layer 0");    //change this line to modify functions.
+          break;
+        case '3':
+          Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
+          break;
+        case '4':
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('z');    //change this line to modify functions.
+          break;
+        case '5':
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('y');    //change this line to modify functions.
+          break;
+        case '6':
+          Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
+          break;
+        case '7':
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('x');    //change this line to modify functions.
+          break;
+        case '8':
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('c');    //change this line to modify functions.
+          break;
+        case '9':
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('v');    //change this line to modify functions.
+          break;
+
+        default:
+          break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
       break;
-    case '2':
-      //code    //change this line to modify functions.
+      
+    case 1:
+      //code for layer LEDs
+      digitalWrite(bit1, LOW);
+      digitalWrite(bit0, HIGH);
+      //code for keypad
+      if(key){
+        Serial.println(key);
+        switch (key) {
+        case '1':
+          //code    //change this line to modify functions.
+          break;
+        case '2':
+          //code    //change this line to modify functions.
+          break;
+        case '3':
+          //code    //change this line to modify functions.
+          break;
+        case '4':
+          //code    //change this line to modify functions.
+          break;
+        case '5':
+          //code    //change this line to modify functions.
+          break;
+        case '6':
+          //code    //change this line to modify functions.
+          break;
+        case '7':
+          //code    //change this line to modify functions.
+          break;
+        case '8':
+          //code    //change this line to modify functions.
+          break;
+        case '9':
+          //code    //change this line to modify functions.
+          break;
+
+        default:
+          break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
       break;
-    case '3':
-      Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
+
+    case 2:
+      //code for layer LEDs
+      digitalWrite(bit1, HIGH);
+      digitalWrite(bit0, LOW);
+      //code for keypad
+      if(key){
+        Serial.println(key);
+        switch (key) {
+        case '1':
+          //code    //change this line to modify functions.
+          break;
+        case '2':
+          //code    //change this line to modify functions.
+          break;
+        case '3':
+          //code    //change this line to modify functions.
+          break;
+        case '4':
+          //code    //change this line to modify functions.
+          break;
+        case '5':
+          //code    //change this line to modify functions.
+          break;
+        case '6':
+          //code    //change this line to modify functions.
+          break;
+        case '7':
+          //code    //change this line to modify functions.
+          break;
+        case '8':
+          //code    //change this line to modify functions.
+          break;
+        case '9':
+          //code    //change this line to modify functions.
+          break;
+
+        default:
+          break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
       break;
-    case '4':
-      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-      Keyboard.press('z');    //change this line to modify functions.
-      break;
-    case '5':
-      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-      Keyboard.press('y');    //change this line to modify functions.
-      break;
-    case '6':
-      Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
-      break;
-    case '7':
-      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-      Keyboard.press('x');    //change this line to modify functions.
-      break;
-    case '8':
-      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-      Keyboard.press('c');    //change this line to modify functions.
-      break;
-    case '9':
-      Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-      Keyboard.press('v');    //change this line to modify functions.
+
+    case 3:
+      //code for layer LEDs
+      digitalWrite(bit1, HIGH);
+      digitalWrite(bit0, HIGH);
+      //code for keypad
+      if(key){
+        Serial.println(key);
+        switch (key) {
+        case '1':
+          //code    //change this line to modify functions.
+          break;
+        case '2':
+          //code    //change this line to modify functions.
+          break;
+        case '3':
+          //code    //change this line to modify functions.
+          break;
+        case '4':
+          //code    //change this line to modify functions.
+          break;
+        case '5':
+          //code    //change this line to modify functions.
+          break;
+        case '6':
+          //code    //change this line to modify functions.
+          break;
+        case '7':
+          //code    //change this line to modify functions.
+          break;
+        case '8':
+          //code    //change this line to modify functions.
+          break;
+        case '9':
+          //code    //change this line to modify functions.
+          break;
+
+        default:
+          break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
       break;
 
     default:
       break;
-    }
-    Keyboard.releaseAll();    //release all keys
   }
 }
