@@ -29,6 +29,7 @@ unsigned int currTime;
 unsigned int doubleClickTiming = 300;    //change this value to adjust the timing of double clicks.
 const int debounce = 20;
 unsigned long lastPress;    //needs to be long not int as int will overflow (rolls over) and cause problems.
+unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
 
 //variables for keypad matrix
 const int  ROW_NUM = 3;
@@ -144,6 +145,15 @@ void loop() {
       //for debugging
     Serial.print(timeElapsed);
     Serial.println(" single clicked");
+  } else if(clickCount == 1 && timeElapsed >= longPressTiming && held) {    //for long press
+    Serial.println("Long press");
+    clickCount = 0;
+    //change layer
+    if(layer == 0) {
+      layer = 3;
+    } else {
+      layer--;
+    }
   }
 
   //code for keypad
