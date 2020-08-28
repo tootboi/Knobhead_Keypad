@@ -19,14 +19,16 @@ int prevAState;
 
 #define encoderBtn 16
 int btnState = 1;
-int pressFreq = 0;
-bool pressed = false;
-int timeElapsed = 0;
-int pressTime = 0;
-int prevPressTime = 0;
+unsigned int pressFreq = 0;
+bool held = false;
+unsigned int timeElapsed;
+unsigned int pressTime;
+unsigned int prevPressTime;
 int clickCount = 0;
-int currTime = 0;
-int doubleClickTiming = 250;    //change this value to adjust the timing of double clicks.
+unsigned int currTime;
+unsigned int doubleClickTiming = 300;    //change this value to adjust the timing of double clicks.
+const int debounce = 20;
+unsigned long lastPress;    //needs to be long not int as int will overflow (rolls over) and cause problems.
 
 //variables for keypad matrix
 const int  ROW_NUM = 3;
@@ -91,24 +93,40 @@ void loop() {
     //code for encoder btn
   btnState = digitalRead(encoderBtn);
   if(btnState == LOW) {
-    if(pressed == false) {
-      pressTime = millis();
-      if(clickCount > 0) {
-        pressFreq = pressTime - prevPressTime;
-      }
-      prevPressTime = pressTime;
-      clickCount++;
-      }
-    pressed = true;
+    if((millis() - lastPress) > debounce) {
+        //for debugging
+      Serial.print("Time now: ");
+      Serial.print(millis());
+      Serial.print(" | Lastpress: ");
+      Serial.print(lastPress);
+      Serial.print(" | time between: ");
+      Serial.println(millis() - lastPress);
+      //update lastPress
+      lastPress = millis();
+      if(held == false) {
+          //pressFreq logic does not have problems with int overflow (roll over).
+          //as pressTime and prevPressTime are same data types and their negation gets assigned
+          //to same data type (pressFreq).
+        pressTime = millis();
+        if(clickCount > 0) {
+          pressFreq = pressTime - prevPressTime;
+        }
+        prevPressTime = pressTime;
+        clickCount++;
+        }
+      held = true;
+    }
   } else {
-    pressed = false;
+    held = false;
   }
 
   currTime = millis();
   timeElapsed = currTime - pressTime;   //time elapsed since last btn press
 
-  if(clickCount == 2 && pressFreq < doubleClickTiming) {    //for double click.
-    clickCount = 0;
+  if(clickCount == 2 && pressFreq < doubleClickTiming && !held) {    //for double click.
+    Serial.print(clickCount);
+    Serial.print(" counts | Layer: ");
+    clickCount = 0;   //reset counter
     //for changing layer
     if(layer < 3) {
       layer++;
@@ -118,8 +136,10 @@ void loop() {
       //for debugging
     Serial.print(layer);
     Serial.println(" double clicked");
-  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming) {    //for single click
-    clickCount = 0;
+  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming && !held) {    //for single click
+    Serial.print(clickCount);
+    Serial.print(" counts | timeElapsed: ");
+    clickCount = 0;   //reset counter
     Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
       //for debugging
     Serial.print(timeElapsed);
@@ -129,6 +149,7 @@ void loop() {
   //code for keypad
   char key = keypad.getKey();
   switch (layer) {
+    //layer 0
     case 0:
       //code for layer LEDs
       digitalWrite(bit1, LOW);
@@ -138,10 +159,10 @@ void loop() {
         Serial.println(key);
         switch (key) {
         case '1':
-          Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+          Keyboard.print("layer 0 ");    //change this line to modify functions.
           break;
         case '2':
-          Serial.println("layer 0");    //change this line to modify functions.
+          Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
           break;
         case '3':
           Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
@@ -177,6 +198,7 @@ void loop() {
       }
       break;
       
+    //layer 1
     case 1:
       //code for layer LEDs
       digitalWrite(bit1, LOW);
@@ -186,10 +208,13 @@ void loop() {
         Serial.println(key);
         switch (key) {
         case '1':
-          //code    //change this line to modify functions.
+          Keyboard.print("layer 1 ");    //change this line to modify functions.
           break;
         case '2':
-          //code    //change this line to modify functions.
+          Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
+          Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
+          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+          Keyboard.press('z');    //change this line to modify functions.
           break;
         case '3':
           //code    //change this line to modify functions.
@@ -220,6 +245,7 @@ void loop() {
       }
       break;
 
+    //layer 2
     case 2:
       //code for layer LEDs
       digitalWrite(bit1, HIGH);
@@ -229,7 +255,7 @@ void loop() {
         Serial.println(key);
         switch (key) {
         case '1':
-          //code    //change this line to modify functions.
+          Keyboard.print("layer 2 ");    //change this line to modify functions.
           break;
         case '2':
           //code    //change this line to modify functions.
@@ -263,6 +289,7 @@ void loop() {
       }
       break;
 
+    //layer 3
     case 3:
       //code for layer LEDs
       digitalWrite(bit1, HIGH);
@@ -272,7 +299,7 @@ void loop() {
         Serial.println(key);
         switch (key) {
         case '1':
-          //code    //change this line to modify functions.
+          Keyboard.print("layer 3 ");    //change this line to modify functions.
           break;
         case '2':
           //code    //change this line to modify functions.
