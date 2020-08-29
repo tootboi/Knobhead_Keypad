@@ -1,6 +1,27 @@
 #include <Arduino.h>
 #include <HID-Project.h>
-#include <Keypad.h>
+
+//variables for keypad matrix
+const int matrixDebounce = 10;
+unsigned long prevPressTimeKeypad;
+
+int pressCount;
+int lastPressCount;
+
+const int rowNum = 3;
+const int colNum = 3;
+
+byte rowPins[rowNum] = {5, 6, 7};
+byte colPins[colNum] = {8, 9, 10};
+
+int getKey();
+
+//    btn matrix layout:
+//    |----------------|
+//    |[1]    [2]   [3]|
+//    |[4]    [5]   [6]|
+//    |[7]    [8]   [9]|
+//    |----------------|
 
 //variable for capsLock led
 const int capsLed = A0;
@@ -31,20 +52,13 @@ const int debounce = 20;
 unsigned long lastPress;    //needs to be long not int as int will overflow (rolls over) and cause problems.
 unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
 
-//variables for keypad matrix
-const int  ROW_NUM = 3;
-const int COLUMN_NUM = 3;
-char keys[ROW_NUM][COLUMN_NUM] = {
-  {'1', '2', '3'},
-  {'4', '5', '6'},
-  {'7', '8', '9'}
-};
-byte row_pins[ROW_NUM] = {5, 6, 7};
-byte column_pins[COLUMN_NUM] = {8, 9, 10};
-Keypad keypad = Keypad(makeKeymap(keys), row_pins, column_pins, ROW_NUM, COLUMN_NUM);
-
 void setup() {
   Serial.begin(9600);
+
+  //setup for keypad matrix
+  for(byte r=0; r<rowNum; r++) {
+    pinMode(rowPins[r], INPUT_PULLUP);
+  }
 
   //setup for capsLock
   pinMode(capsLed, OUTPUT);
@@ -156,8 +170,8 @@ void loop() {
     }
   }
 
-  //code for keypad
-  char key = keypad.getKey();
+  //code for keypad matrix
+  int key = getKey();
   switch (layer) {
     //layer 0
     case 0:
@@ -166,37 +180,38 @@ void loop() {
       digitalWrite(bit0, LOW);
       //code for keypad
       if(key){
+        Serial.print("key: ");
         Serial.println(key);
         switch (key) {
-        case '1':
+        case 1:
           Keyboard.print("layer 0 ");    //change this line to modify functions.
           break;
-        case '2':
+        case 2:
           Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
           break;
-        case '3':
+        case 3:
           Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
           break;
-        case '4':
+        case 4:
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
           Keyboard.press('z');    //change this line to modify functions.
           break;
-        case '5':
+        case 5:
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
           Keyboard.press('y');    //change this line to modify functions.
           break;
-        case '6':
+        case 6:
           Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
           break;
-        case '7':
+        case 7:
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
           Keyboard.press('x');    //change this line to modify functions.
           break;
-        case '8':
+        case 8:
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
           Keyboard.press('c');    //change this line to modify functions.
           break;
-        case '9':
+        case 9:
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
           Keyboard.press('v');    //change this line to modify functions.
           break;
@@ -215,36 +230,37 @@ void loop() {
       digitalWrite(bit0, HIGH);
       //code for keypad
       if(key){
+        Serial.print("key: ");
         Serial.println(key);
         switch (key) {
-        case '1':
+        case 1:
           Keyboard.print("layer 1 ");    //change this line to modify functions.
           break;
-        case '2':
+        case 2:
           Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
           Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
           Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('z');    //change this line to modify functions.
+          Keyboard.press(KEY_F1);    //change this line to modify functions.
           break;
-        case '3':
+        case 3:
           //code    //change this line to modify functions.
           break;
-        case '4':
+        case 4:
           //code    //change this line to modify functions.
           break;
-        case '5':
+        case 5:
           //code    //change this line to modify functions.
           break;
-        case '6':
+        case 6:
           //code    //change this line to modify functions.
           break;
-        case '7':
+        case 7:
           //code    //change this line to modify functions.
           break;
-        case '8':
+        case 8:
           //code    //change this line to modify functions.
           break;
-        case '9':
+        case 9:
           //code    //change this line to modify functions.
           break;
 
@@ -262,33 +278,34 @@ void loop() {
       digitalWrite(bit0, LOW);
       //code for keypad
       if(key){
+        Serial.print("key: ");
         Serial.println(key);
         switch (key) {
-        case '1':
+        case 1:
           Keyboard.print("layer 2 ");    //change this line to modify functions.
           break;
-        case '2':
+        case 2:
           //code    //change this line to modify functions.
           break;
-        case '3':
+        case 3:
           //code    //change this line to modify functions.
           break;
-        case '4':
+        case 4:
           //code    //change this line to modify functions.
           break;
-        case '5':
+        case 5:
           //code    //change this line to modify functions.
           break;
-        case '6':
+        case 6:
           //code    //change this line to modify functions.
           break;
-        case '7':
+        case 7:
           //code    //change this line to modify functions.
           break;
-        case '8':
+        case 8:
           //code    //change this line to modify functions.
           break;
-        case '9':
+        case 9:
           //code    //change this line to modify functions.
           break;
 
@@ -306,33 +323,34 @@ void loop() {
       digitalWrite(bit0, HIGH);
       //code for keypad
       if(key){
+        Serial.print("key: ");
         Serial.println(key);
         switch (key) {
-        case '1':
+        case 1:
           Keyboard.print("layer 3 ");    //change this line to modify functions.
           break;
-        case '2':
+        case 2:
           //code    //change this line to modify functions.
           break;
-        case '3':
+        case 3:
           //code    //change this line to modify functions.
           break;
-        case '4':
+        case 4:
           //code    //change this line to modify functions.
           break;
-        case '5':
+        case 5:
           //code    //change this line to modify functions.
           break;
-        case '6':
+        case 6:
           //code    //change this line to modify functions.
           break;
-        case '7':
+        case 7:
           //code    //change this line to modify functions.
           break;
-        case '8':
+        case 8:
           //code    //change this line to modify functions.
           break;
-        case '9':
+        case 9:
           //code    //change this line to modify functions.
           break;
 
@@ -346,4 +364,35 @@ void loop() {
     default:
       break;
   }
+}
+
+int getKey() {
+  int currKey=0;
+  pressCount = 0;
+  if((millis() - prevPressTimeKeypad) > matrixDebounce) {
+    prevPressTimeKeypad = millis();
+    for(byte c=0; c<colNum; c++) {
+      //pulse col.
+      pinMode(colPins[c], OUTPUT);
+      digitalWrite(colPins[c], LOW);
+      for(byte r=0; r<rowNum; r++) {
+        //check if btn is pressed.
+        if(digitalRead(rowPins[r]) == 0) {
+          pressCount++;
+          //pressCount==1 limits concurrent btn press to 1.
+          //lastPressCount==0 ensures that all btns were released.
+          if(pressCount == 1 && lastPressCount == 0) {
+            currKey = c+colNum*r+1;
+            break;
+          }
+        }
+      }
+      //end col pulse.
+      digitalWrite(colPins[c], HIGH);
+      pinMode(colPins[c], INPUT);
+    }
+    //save current pressCount.
+    lastPressCount = pressCount;
+  }
+  return(currKey);
 }
