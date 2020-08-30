@@ -76,6 +76,7 @@ void setup() {
   Consumer.begin(); //For writing media keys.
   Keyboard.begin(); //For writing normal keys.
   BootKeyboard.begin(); //For keyboard leds.
+  Mouse.begin();
 }
 
 void loop() {
@@ -85,25 +86,6 @@ void loop() {
   } else {
     digitalWrite(capsLed, LOW);
   }
-
-  //code for rotary encoder
-  aState = digitalRead(outputA);
-  if(aState != prevAState) {
-    if(digitalRead(outputB) != aState) {
-      counter ++;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        Consumer.write(MEDIA_VOLUME_UP);    //change this line to modify functions.
-      }
-    } else {
-      counter --;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        Consumer.write(MEDIA_VOLUME_DOWN);    //change this line to modify functions.
-      }
-    }
-    Serial.print("Position: ");
-    Serial.println(counter);
-  }
-  prevAState = aState;
 
     //code for encoder btn
   btnState = digitalRead(encoderBtn);
@@ -169,6 +151,69 @@ void loop() {
       layer--;
     }
   }
+
+  //code for rotary encoder
+  aState = digitalRead(outputA);
+  if(aState != prevAState) {
+    if(digitalRead(outputB) != aState) {
+      counter ++;
+      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
+        switch(layer) {
+          //layer0
+          case 0:
+            Consumer.write(MEDIA_VOLUME_UP);    //change this line to modify functions.
+            break;
+          //layer 1
+          case 1:
+            Mouse.move(0, 0, -1);    //change this line to modify functions.
+            break;
+          //layer 2
+          case 2:
+            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+            Keyboard.press('+');    //change this line to modify functions.
+            break;
+          //layer 3
+          case 3:
+            //code    //change this line to modify functions.
+            break;
+
+          default:
+            break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
+    } else {
+      counter --;
+      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
+        switch(layer) {
+          //layer0
+          case 0:
+            Consumer.write(MEDIA_VOLUME_DOWN);    //change this line to modify functions.
+            break;
+          //layer 1
+          case 1:
+            Mouse.move(0, 0, 1);    //change this line to modify functions.
+            break;
+          //layer 2
+          case 2:
+            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+            Keyboard.press('-');    //change this line to modify functions.
+            break;
+          //layer 3
+          case 3:
+            //code    //change this line to modify functions.
+            break;
+
+          default:
+            break;
+        }
+        Keyboard.releaseAll();    //release all keys
+      }
+    }
+    Serial.print("Position: ");
+    Serial.println(counter);
+  }
+  prevAState = aState;
 
   //code for keypad matrix
   int key = getKey();
