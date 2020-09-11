@@ -55,6 +55,8 @@ unsigned int doubleClickTiming = 300;    //change this value to adjust the timin
 const int debounce = 20;
 unsigned long lastPress;    //needs to be long not int as int will overflow (rolls over) and cause problems.
 unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
+bool released = false;
+bool rotated = false;
 
 void setup() {
   Serial.begin(9600);
@@ -169,7 +171,26 @@ void loop() {
     Serial.print(timeElapsed);
     Serial.println(" single clicked");
   } else if(held) {
-    
+    if(millis() - lastPulse > pulseDebounce) {
+      lastPulse = millis();
+      int direction = getEncoderDirection();
+      if(direction) {
+        rotated = true;
+      }
+      switch(direction) {
+        case 1:
+          Serial.println("held clockwise");
+          break;
+        case 2:
+          Serial.println("held anti-clockwise");
+          break;
+
+        default:
+          break;
+      }
+    }
+    // Serial.print("rotated: ");
+    // Serial.println(rotated);
   }
 
   // //code for rotary encoder
