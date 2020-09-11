@@ -37,6 +37,10 @@ const int bit0 = A2;
 int counter = 0;
 int aState;
 int prevAState;
+const int pulseDebounce = 5;
+unsigned long lastPulse = 0;
+
+int getEncoderDirection();
 
 #define encoderBtn 16
 int btnState = 1;
@@ -92,15 +96,19 @@ void loop() {
   if(btnState == LOW) {
     if((millis() - lastPress) > debounce) {
         //for debugging
-      Serial.print("Time now: ");
-      Serial.print(millis());
-      Serial.print(" | Lastpress: ");
-      Serial.print(lastPress);
-      Serial.print(" | time between: ");
-      Serial.println(millis() - lastPress);
+      // Serial.print("Time now: ");
+      // Serial.print(millis());
+      // Serial.print(" | Lastpress: ");
+      // Serial.print(lastPress);
+      // Serial.print(" | time between: ");
+      // Serial.println(millis() - lastPress);
       //update lastPress
       lastPress = millis();
       if(held == false) {
+        if(rotated) {
+          rotated = false;
+          clickCount = 0;
+        }
           //pressFreq logic does not have problems with int overflow (roll over).
           //as pressTime and prevPressTime are same data types and their negation gets assigned
           //to same data type (pressFreq).
@@ -114,15 +122,20 @@ void loop() {
       held = true;
     }
   } else {
+    if(held) {
+      released = true;
+    } else {
+      released = false;
+    }
     held = false;
   }
 
   currTime = millis();
   timeElapsed = currTime - pressTime;   //time elapsed since last btn press
 
-  if(clickCount == 2 && pressFreq < doubleClickTiming && !held) {    //for double click.
-    Serial.print(clickCount);
-    Serial.print(" counts | Layer: ");
+  if(clickCount == 2 && pressFreq < doubleClickTiming && !held && !rotated) {    //for double click.
+      //for debugging
+    // Serial.print(clickCount);
     clickCount = 0;   //reset counter
     //for changing layer
     if(layer < 3) {
@@ -131,18 +144,10 @@ void loop() {
       layer = 0;
     }
       //for debugging
-    Serial.print(layer);
-    Serial.println(" double clicked");
-  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming && !held) {    //for single click
-    Serial.print(clickCount);
-    Serial.print(" counts | timeElapsed: ");
-    clickCount = 0;   //reset counter
-    Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
-      //for debugging
-    Serial.print(timeElapsed);
-    Serial.println(" single clicked");
-  } else if(clickCount == 1 && timeElapsed >= longPressTiming && held) {    //for long press
-    Serial.println("Long press");
+    Serial.print("Double click | ");
+    Serial.print("Layer: ");
+    Serial.println(layer);
+  } else if(clickCount == 1 && timeElapsed >= longPressTiming && released && !rotated) {    //for long press
     clickCount = 0;
     //change layer
     if(layer == 0) {
@@ -150,70 +155,96 @@ void loop() {
     } else {
       layer--;
     }
+      //for debugging
+    Serial.print("Long press | ");
+    Serial.print("Layer: ");
+    Serial.println(layer);
+  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming && !held && !rotated) {    //for single click
+      //for debugging
+    Serial.print(clickCount);
+    Serial.print(" counts | timeElapsed: ");
+    clickCount = 0;   //reset counter
+    Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
+      //for debugging
+    Serial.print(timeElapsed);
+    Serial.println(" single clicked");
+  } else if(held) {
+    
   }
 
-  //code for rotary encoder
-  aState = digitalRead(outputA);
-  if(aState != prevAState) {
-    if(digitalRead(outputB) != aState) {
-      counter ++;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        switch(layer) {
-          //layer0
-          case 0:
-            Consumer.write(MEDIA_VOLUME_UP);    //change this line to modify functions.
+  // //code for rotary encoder
+  if(millis() - lastPulse > pulseDebounce) {
+    lastPulse = millis();
+    int direction = getEncoderDirection();
+    switch(layer) {
+      //layer0
+      case 0:
+        switch (direction) {
+          case 1:     //clockwise
+            Consumer.write(MEDIA_VOLUME_UP);
             break;
-          //layer 1
-          case 1:
-            Mouse.move(0, 0, -1);    //change this line to modify functions.
+          case 2:     //anti-clockwise
+            Consumer.write(MEDIA_VOLUME_DOWN);
             break;
-          //layer 2
-          case 2:
+
+          default:
+            break;
+        }
+        Keyboard.releaseAll();    //release all keys
+        break;
+      //layer1
+      case 1:
+        switch (direction) {
+          case 1:     //clockwise
+            Consumer.write(MEDIA_VOLUME_UP);
+            break;
+          case 2:     //anti-clockwise
+            Consumer.write(MEDIA_VOLUME_DOWN);
+            break;
+
+          default:
+            break;
+        }
+        Keyboard.releaseAll();    //release all keys
+        break;
+      //layer2
+      case 2:
+        switch (direction) {
+          case 1:     //clockwise
             Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
             Keyboard.press('+');    //change this line to modify functions.
             break;
-          //layer 3
-          case 3:
-            //code    //change this line to modify functions.
-            break;
-
-          default:
-            break;
-        }
-        Keyboard.releaseAll();    //release all keys
-      }
-    } else {
-      counter --;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        switch(layer) {
-          //layer0
-          case 0:
-            Consumer.write(MEDIA_VOLUME_DOWN);    //change this line to modify functions.
-            break;
-          //layer 1
-          case 1:
-            Mouse.move(0, 0, 1);    //change this line to modify functions.
-            break;
-          //layer 2
-          case 2:
+          case 2:     //anti-clockwise
             Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
             Keyboard.press('-');    //change this line to modify functions.
             break;
-          //layer 3
-          case 3:
-            //code    //change this line to modify functions.
+
+          default:
+            break;
+        }
+        Keyboard.releaseAll();    //release all keys
+        break;
+      //layer3
+      case 3:
+        switch (direction) {
+          case 1:     //clockwise
+            Mouse.move(0, 0, -1);     //change this line to modify functions.
+            break;
+          case 2:     //anti-clockwise
+            Mouse.move(0, 0, 1);     //change this line to modify functions.
             break;
 
           default:
             break;
         }
         Keyboard.releaseAll();    //release all keys
-      }
+        break;
+      
+      default:
+        break;
     }
-    Serial.print("Position: ");
-    Serial.println(counter);
   }
-  prevAState = aState;
+  
 
   //code for keypad matrix
   int key = getKey();
@@ -440,4 +471,28 @@ int getKey() {
     lastPressCount = pressCount;
   }
   return(currKey);
+}
+
+int getEncoderDirection() {
+  int direction = 0;
+  aState = digitalRead(outputA);
+  if(aState != prevAState) {
+      //for debugging
+    //Serial.println("pulse");
+    if(digitalRead(outputB) != aState) {
+      counter ++;
+      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
+        direction = 1;
+      }
+    } else {
+      counter --;
+      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
+        direction = 2;
+      }
+    }
+      //for debugging
+    //Serial.println(direction);
+  }
+  prevAState = aState;
+  return(direction);
 }
