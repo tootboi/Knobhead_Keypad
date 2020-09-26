@@ -1,5 +1,12 @@
 #include <Arduino.h>
 #include <HID-Project.h>
+#include <Adafruit_NeoPixel.h>
+
+//variables for NeoPixel
+#define ledStripPin 15
+#define ledCount 3
+
+Adafruit_NeoPixel strip(ledCount, ledStripPin, NEO_GRB + NEO_KHZ800);
 
 //variables for keypad matrix
 const int matrixDebounce = 10;
@@ -23,13 +30,8 @@ int getKey();
 //    |[7]    [8]   [9]|
 //    |----------------|
 
-//variable for capsLock led
-const int capsLed = A0;
-
 //variable for layers
 int layer = 0;
-const int bit1 = A1;
-const int bit0 = A2;
 
 //variables for rotary encoder
 #define outputA 2
@@ -61,17 +63,15 @@ bool rotated = false;
 void setup() {
   Serial.begin(9600);
 
+  //setup for NeoPixel
+  strip.begin();
+  strip.show();
+  strip.setBrightness(15);
+
   //setup for keypad matrix
   for(byte r=0; r<rowNum; r++) {
     pinMode(rowPins[r], INPUT_PULLUP);
   }
-
-  //setup for capsLock
-  pinMode(capsLed, OUTPUT);
-
-  //setup for layer LEDs
-  pinMode(bit0, OUTPUT);
-  pinMode(bit1, OUTPUT);
 
   //setup for rotarty encoder
   pinMode(outputA,INPUT_PULLUP);
@@ -86,11 +86,17 @@ void setup() {
 }
 
 void loop() {
+  //code for NeoPixel
+
   //code for capsLock led
   if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {
-    digitalWrite(capsLed, HIGH);
+    //digitalWrite(capsLed, HIGH);
+    strip.setPixelColor(0, strip.Color(255, 255, 0));
+    strip.show();
   } else {
-    digitalWrite(capsLed, LOW);
+    //digitalWrite(capsLed, LOW);
+    strip.clear();
+    strip.show();
   }
 
     //code for encoder btn
@@ -273,8 +279,10 @@ void loop() {
     //layer 0
     case 0:
       //code for layer LEDs
-      digitalWrite(bit1, LOW);
-      digitalWrite(bit0, LOW);
+      strip.setPixelColor(1, strip.Color(0, 0, 0));   //bit1
+      strip.show();
+      strip.setPixelColor(2, strip.Color(0, 0, 0));   //bit0
+      strip.show();
       //code for keypad
       if(key){
         Serial.print("key: ");
@@ -323,8 +331,10 @@ void loop() {
     //layer 1
     case 1:
       //code for layer LEDs
-      digitalWrite(bit1, LOW);
-      digitalWrite(bit0, HIGH);
+      strip.setPixelColor(1, strip.Color(0, 0, 0));   //bit1
+      strip.show();
+      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      strip.show();
       //code for keypad
       if(key){
         Serial.print("key: ");
@@ -371,8 +381,10 @@ void loop() {
     //layer 2
     case 2:
       //code for layer LEDs
-      digitalWrite(bit1, HIGH);
-      digitalWrite(bit0, LOW);
+      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      strip.show();
+      strip.setPixelColor(2, strip.Color(0, 0, 0));   //bit0
+      strip.show();
       //code for keypad
       if(key){
         Serial.print("key: ");
@@ -416,8 +428,10 @@ void loop() {
     //layer 3
     case 3:
       //code for layer LEDs
-      digitalWrite(bit1, HIGH);
-      digitalWrite(bit0, HIGH);
+      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      strip.show();
+      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      strip.show();
       //code for keypad
       if(key){
         Serial.print("key: ");
