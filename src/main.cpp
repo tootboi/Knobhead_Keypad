@@ -39,7 +39,7 @@ int layer = 0;
 int counter = 0;
 int aState;
 int prevAState;
-const int pulseDebounce = 5;
+const int pulseDebounce = 1;
 unsigned long lastPulse = 0;
 
 int getEncoderDirection();
@@ -90,11 +90,9 @@ void loop() {
 
   //code for capsLock led
   if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {
-    //digitalWrite(capsLed, HIGH);
     strip.setPixelColor(0, strip.Color(255, 255, 0));
     strip.show();
   } else {
-    //digitalWrite(capsLed, LOW);
     strip.clear();
     strip.show();
   }
@@ -279,9 +277,7 @@ void loop() {
     //layer 0
     case 0:
       //code for layer LEDs
-      strip.setPixelColor(1, strip.Color(0, 0, 0));   //bit1
-      strip.show();
-      strip.setPixelColor(2, strip.Color(0, 0, 0));   //bit0
+      strip.clear();
       strip.show();
       //code for keypad
       if(key){
@@ -331,8 +327,7 @@ void loop() {
     //layer 1
     case 1:
       //code for layer LEDs
-      strip.setPixelColor(1, strip.Color(0, 0, 0));   //bit1
-      strip.show();
+      strip.clear();
       strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
       strip.show();
       //code for keypad
@@ -381,9 +376,8 @@ void loop() {
     //layer 2
     case 2:
       //code for layer LEDs
+      strip.clear();
       strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      strip.show();
-      strip.setPixelColor(2, strip.Color(0, 0, 0));   //bit0
       strip.show();
       //code for keypad
       if(key){
@@ -391,31 +385,31 @@ void loop() {
         Serial.println(key);
         switch (key) {
         case 1:
-          Keyboard.print("layer 2 ");    //change this line to modify functions.
+          Keyboard.press(KEYPAD_1);    //change this line to modify functions.
           break;
         case 2:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_2);    //change this line to modify functions.
           break;
         case 3:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_3);    //change this line to modify functions.
           break;
         case 4:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_4);    //change this line to modify functions.
           break;
         case 5:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_5);    //change this line to modify functions.
           break;
         case 6:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_6);    //change this line to modify functions.
           break;
         case 7:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_7);    //change this line to modify functions.
           break;
         case 8:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_8);    //change this line to modify functions.
           break;
         case 9:
-          //code    //change this line to modify functions.
+          Keyboard.press(KEYPAD_9);    //change this line to modify functions.
           break;
 
         default:
@@ -429,7 +423,6 @@ void loop() {
     case 3:
       //code for layer LEDs
       strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      strip.show();
       strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
       strip.show();
       //code for keypad
