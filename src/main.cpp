@@ -59,6 +59,7 @@ unsigned long lastPress;    //needs to be long not int as int will overflow (rol
 unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
 bool released = false;
 bool rotated = false;
+bool encoderClicked = false;
 
 void setup() {
   Serial.begin(9600);
@@ -155,6 +156,7 @@ void loop() {
     Serial.println(layer);
   } else if(clickCount == 1 && timeElapsed >= longPressTiming && released && !rotated) {    //for long press
     clickCount = 0;
+    encoderClicked = false;
     //change layer
     if(layer == 0) {
       layer = 3;
@@ -170,7 +172,8 @@ void loop() {
     Serial.print(clickCount);
     Serial.print(" counts | timeElapsed: ");
     clickCount = 0;   //reset counter
-    Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
+    // Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
+    encoderClicked = true;
       //for debugging
     Serial.print(timeElapsed);
     Serial.println(" single clicked");
@@ -193,8 +196,6 @@ void loop() {
           break;
       }
     }
-    // Serial.print("rotated: ");
-    // Serial.println(rotated);
   }
 
   //code for layer leds
@@ -279,6 +280,10 @@ void loop() {
         }
         
         //code for rotary encoder
+        if(encoderClicked) {
+          Consumer.write(MEDIA_VOLUME_MUTE);
+          encoderClicked = false;
+        }
         switch (direction) {
           case 1:     //clockwise
             Consumer.write(MEDIA_VOLUME_UP);
@@ -300,44 +305,48 @@ void loop() {
           Serial.print("key: ");
           Serial.println(key);
           switch (key) {
-          case 1:
-            Keyboard.print("layer 1 ");    //change this line to modify functions.
-            break;
-          case 2:
-            Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
-            Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
-            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-            Keyboard.press(KEY_F1);    //change this line to modify functions.
-            break;
-          case 3:
-            //code    //change this line to modify functions.
-            break;
-          case 4:
-            //code    //change this line to modify functions.
-            break;
-          case 5:
-            //code    //change this line to modify functions.
-            break;
-          case 6:
-            //code    //change this line to modify functions.
-            break;
-          case 7:
-            //code    //change this line to modify functions.
-            break;
-          case 8:
-            //code    //change this line to modify functions.
-            break;
-          case 9:
-            //code    //change this line to modify functions.
-            break;
+            case 1:
+              Keyboard.print("layer 1 ");    //change this line to modify functions.
+              break;
+            case 2:
+              Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
+              Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press(KEY_F1);    //change this line to modify functions.
+              break;
+            case 3:
+              //code    //change this line to modify functions.
+              break;
+            case 4:
+              //code    //change this line to modify functions.
+              break;
+            case 5:
+              //code    //change this line to modify functions.
+              break;
+            case 6:
+              //code    //change this line to modify functions.
+              break;
+            case 7:
+              //code    //change this line to modify functions.
+              break;
+            case 8:
+              //code    //change this line to modify functions.
+              break;
+            case 9:
+              //code    //change this line to modify functions.
+              break;
 
-          default:
-            break;
+            default:
+              break;
           }
           Keyboard.releaseAll();    //release all keys
         }
         
         //code for rotary encoder
+        if(encoderClicked) {
+          Consumer.write(MEDIA_VOLUME_MUTE);
+          encoderClicked = false;
+        }
         switch (direction) {
           case 1:     //clockwise
             Consumer.write(MEDIA_VOLUME_UP);
@@ -359,41 +368,45 @@ void loop() {
           Serial.print("key: ");
           Serial.println(key);
           switch (key) {
-          case 1:
-            Keyboard.press(KEYPAD_1);    //change this line to modify functions.
-            break;
-          case 2:
-            Keyboard.press(KEYPAD_2);    //change this line to modify functions.
-            break;
-          case 3:
-            Keyboard.press(KEYPAD_3);    //change this line to modify functions.
-            break;
-          case 4:
-            Keyboard.press(KEYPAD_4);    //change this line to modify functions.
-            break;
-          case 5:
-            Keyboard.press(KEYPAD_5);    //change this line to modify functions.
-            break;
-          case 6:
-            Keyboard.press(KEYPAD_6);    //change this line to modify functions.
-            break;
-          case 7:
-            Keyboard.press(KEYPAD_7);    //change this line to modify functions.
-            break;
-          case 8:
-            Keyboard.press(KEYPAD_8);    //change this line to modify functions.
-            break;
-          case 9:
-            Keyboard.press(KEYPAD_9);    //change this line to modify functions.
-            break;
+            case 1:
+              Keyboard.press(KEYPAD_1);    //change this line to modify functions.
+              break;
+            case 2:
+              Keyboard.press(KEYPAD_2);    //change this line to modify functions.
+              break;
+            case 3:
+              Keyboard.press(KEYPAD_3);    //change this line to modify functions.
+              break;
+            case 4:
+              Keyboard.press(KEYPAD_4);    //change this line to modify functions.
+              break;
+            case 5:
+              Keyboard.press(KEYPAD_5);    //change this line to modify functions.
+              break;
+            case 6:
+              Keyboard.press(KEYPAD_6);    //change this line to modify functions.
+              break;
+            case 7:
+              Keyboard.press(KEYPAD_7);    //change this line to modify functions.
+              break;
+            case 8:
+              Keyboard.press(KEYPAD_8);    //change this line to modify functions.
+              break;
+            case 9:
+              Keyboard.press(KEYPAD_9);    //change this line to modify functions.
+              break;
 
-          default:
-            break;
+            default:
+              break;
           }
           Keyboard.releaseAll();    //release all keys
         }
         
         //code for rotary encoder
+        if(encoderClicked) {
+          Consumer.write(MEDIA_VOLUME_MUTE);
+          encoderClicked = false;
+        }
         switch (direction) {
           case 1:     //clockwise
             Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
@@ -417,41 +430,45 @@ void loop() {
           Serial.print("key: ");
           Serial.println(key);
           switch (key) {
-          case 1:
-            Keyboard.print("layer 3 ");    //change this line to modify functions.
-            break;
-          case 2:
-            //code    //change this line to modify functions.
-            break;
-          case 3:
-            //code    //change this line to modify functions.
-            break;
-          case 4:
-            //code    //change this line to modify functions.
-            break;
-          case 5:
-            //code    //change this line to modify functions.
-            break;
-          case 6:
-            //code    //change this line to modify functions.
-            break;
-          case 7:
-            //code    //change this line to modify functions.
-            break;
-          case 8:
-            //code    //change this line to modify functions.
-            break;
-          case 9:
-            //code    //change this line to modify functions.
-            break;
+            case 1:
+              Keyboard.print("layer 3 ");    //change this line to modify functions.
+              break;
+            case 2:
+              //code    //change this line to modify functions.
+              break;
+            case 3:
+              //code    //change this line to modify functions.
+              break;
+            case 4:
+              //code    //change this line to modify functions.
+              break;
+            case 5:
+              //code    //change this line to modify functions.
+              break;
+            case 6:
+              //code    //change this line to modify functions.
+              break;
+            case 7:
+              //code    //change this line to modify functions.
+              break;
+            case 8:
+              //code    //change this line to modify functions.
+              break;
+            case 9:
+              //code    //change this line to modify functions.
+              break;
 
-          default:
-            break;
+            default:
+              break;
           }
           Keyboard.releaseAll();    //release all keys
         }
         
         //code for rotary encoder
+        if(encoderClicked) {
+          Keyboard.print("layer 3 encoderBtn ");
+          encoderClicked = false;
+        }
         switch (direction) {
           case 1:     //clockwise
             Mouse.move(0, 0, -1);     //change this line to modify functions.
