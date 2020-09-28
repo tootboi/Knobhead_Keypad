@@ -197,13 +197,88 @@ void loop() {
     // Serial.println(rotated);
   }
 
-  // //code for rotary encoder
+  //code for layer leds
+  switch(layer) {
+    //layer 0
+    case 0:
+      strip.clear();
+      strip.show();
+      break;
+    //layer 1
+    case 1:
+      strip.clear();
+      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      strip.show();
+      break;
+    //layer 2
+    case 2:
+      strip.clear();
+      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      strip.show();
+      break;
+    //layer 3
+    case 3:
+      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      strip.show();
+      break;
+      
+    default:
+      break;
+  }
+  
   if(millis() - lastPulse > pulseDebounce) {
     lastPulse = millis();
     int direction = getEncoderDirection();
-    switch(layer) {
-      //layer0
+    int key = getKey();
+    switch (layer) {
+      //layer 0
       case 0:
+        //code for keypad
+        if(key){
+          Serial.print("key: ");
+          Serial.println(key);
+          switch (key) {
+            case 1:
+              Keyboard.print("layer 0 ");    //change this line to modify functions.
+              break;
+            case 2:
+              Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+              break;
+            case 3:
+              Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
+              break;
+            case 4:
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press('z');    //change this line to modify functions.
+              break;
+            case 5:
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press('y');    //change this line to modify functions.
+              break;
+            case 6:
+              Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
+              break;
+            case 7:
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press('x');    //change this line to modify functions.
+              break;
+            case 8:
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press('c');    //change this line to modify functions.
+              break;
+            case 9:
+              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+              Keyboard.press('v');    //change this line to modify functions.
+              break;
+
+            default:
+              break;
+          }
+          Keyboard.releaseAll();    //release all keys
+        }
+        
+        //code for rotary encoder
         switch (direction) {
           case 1:     //clockwise
             Consumer.write(MEDIA_VOLUME_UP);
@@ -217,8 +292,52 @@ void loop() {
         }
         Keyboard.releaseAll();    //release all keys
         break;
-      //layer1
+        
+      //layer 1
       case 1:
+        //code for keypad
+        if(key){
+          Serial.print("key: ");
+          Serial.println(key);
+          switch (key) {
+          case 1:
+            Keyboard.print("layer 1 ");    //change this line to modify functions.
+            break;
+          case 2:
+            Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
+            Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
+            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+            Keyboard.press(KEY_F1);    //change this line to modify functions.
+            break;
+          case 3:
+            //code    //change this line to modify functions.
+            break;
+          case 4:
+            //code    //change this line to modify functions.
+            break;
+          case 5:
+            //code    //change this line to modify functions.
+            break;
+          case 6:
+            //code    //change this line to modify functions.
+            break;
+          case 7:
+            //code    //change this line to modify functions.
+            break;
+          case 8:
+            //code    //change this line to modify functions.
+            break;
+          case 9:
+            //code    //change this line to modify functions.
+            break;
+
+          default:
+            break;
+          }
+          Keyboard.releaseAll();    //release all keys
+        }
+        
+        //code for rotary encoder
         switch (direction) {
           case 1:     //clockwise
             Consumer.write(MEDIA_VOLUME_UP);
@@ -230,10 +349,51 @@ void loop() {
           default:
             break;
         }
-        Keyboard.releaseAll();    //release all keys
+        Keyboard.releaseAll();  
         break;
-      //layer2
+
+      //layer 2
       case 2:
+        //code for keypad
+        if(key){
+          Serial.print("key: ");
+          Serial.println(key);
+          switch (key) {
+          case 1:
+            Keyboard.press(KEYPAD_1);    //change this line to modify functions.
+            break;
+          case 2:
+            Keyboard.press(KEYPAD_2);    //change this line to modify functions.
+            break;
+          case 3:
+            Keyboard.press(KEYPAD_3);    //change this line to modify functions.
+            break;
+          case 4:
+            Keyboard.press(KEYPAD_4);    //change this line to modify functions.
+            break;
+          case 5:
+            Keyboard.press(KEYPAD_5);    //change this line to modify functions.
+            break;
+          case 6:
+            Keyboard.press(KEYPAD_6);    //change this line to modify functions.
+            break;
+          case 7:
+            Keyboard.press(KEYPAD_7);    //change this line to modify functions.
+            break;
+          case 8:
+            Keyboard.press(KEYPAD_8);    //change this line to modify functions.
+            break;
+          case 9:
+            Keyboard.press(KEYPAD_9);    //change this line to modify functions.
+            break;
+
+          default:
+            break;
+          }
+          Keyboard.releaseAll();    //release all keys
+        }
+        
+        //code for rotary encoder
         switch (direction) {
           case 1:     //clockwise
             Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
@@ -247,10 +407,51 @@ void loop() {
           default:
             break;
         }
-        Keyboard.releaseAll();    //release all keys
+        Keyboard.releaseAll(); 
         break;
-      //layer3
+
+      //layer 3
       case 3:
+        //code for keypad
+        if(key){
+          Serial.print("key: ");
+          Serial.println(key);
+          switch (key) {
+          case 1:
+            Keyboard.print("layer 3 ");    //change this line to modify functions.
+            break;
+          case 2:
+            //code    //change this line to modify functions.
+            break;
+          case 3:
+            //code    //change this line to modify functions.
+            break;
+          case 4:
+            //code    //change this line to modify functions.
+            break;
+          case 5:
+            //code    //change this line to modify functions.
+            break;
+          case 6:
+            //code    //change this line to modify functions.
+            break;
+          case 7:
+            //code    //change this line to modify functions.
+            break;
+          case 8:
+            //code    //change this line to modify functions.
+            break;
+          case 9:
+            //code    //change this line to modify functions.
+            break;
+
+          default:
+            break;
+          }
+          Keyboard.releaseAll();    //release all keys
+        }
+        
+        //code for rotary encoder
         switch (direction) {
           case 1:     //clockwise
             Mouse.move(0, 0, -1);     //change this line to modify functions.
@@ -262,211 +463,12 @@ void loop() {
           default:
             break;
         }
-        Keyboard.releaseAll();    //release all keys
+        Keyboard.releaseAll();  
         break;
-      
+
       default:
         break;
     }
-  }
-  
-
-  //code for keypad matrix
-  int key = getKey();
-  switch (layer) {
-    //layer 0
-    case 0:
-      //code for layer LEDs
-      strip.clear();
-      strip.show();
-      //code for keypad
-      if(key){
-        Serial.print("key: ");
-        Serial.println(key);
-        switch (key) {
-        case 1:
-          Keyboard.print("layer 0 ");    //change this line to modify functions.
-          break;
-        case 2:
-          Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
-          break;
-        case 3:
-          Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
-          break;
-        case 4:
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('z');    //change this line to modify functions.
-          break;
-        case 5:
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('y');    //change this line to modify functions.
-          break;
-        case 6:
-          Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
-          break;
-        case 7:
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('x');    //change this line to modify functions.
-          break;
-        case 8:
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('c');    //change this line to modify functions.
-          break;
-        case 9:
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press('v');    //change this line to modify functions.
-          break;
-
-        default:
-          break;
-        }
-        Keyboard.releaseAll();    //release all keys
-      }
-      break;
-      
-    //layer 1
-    case 1:
-      //code for layer LEDs
-      strip.clear();
-      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
-      strip.show();
-      //code for keypad
-      if(key){
-        Serial.print("key: ");
-        Serial.println(key);
-        switch (key) {
-        case 1:
-          Keyboard.print("layer 1 ");    //change this line to modify functions.
-          break;
-        case 2:
-          Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
-          Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
-          Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-          Keyboard.press(KEY_F1);    //change this line to modify functions.
-          break;
-        case 3:
-          //code    //change this line to modify functions.
-          break;
-        case 4:
-          //code    //change this line to modify functions.
-          break;
-        case 5:
-          //code    //change this line to modify functions.
-          break;
-        case 6:
-          //code    //change this line to modify functions.
-          break;
-        case 7:
-          //code    //change this line to modify functions.
-          break;
-        case 8:
-          //code    //change this line to modify functions.
-          break;
-        case 9:
-          //code    //change this line to modify functions.
-          break;
-
-        default:
-          break;
-        }
-        Keyboard.releaseAll();    //release all keys
-      }
-      break;
-
-    //layer 2
-    case 2:
-      //code for layer LEDs
-      strip.clear();
-      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      strip.show();
-      //code for keypad
-      if(key){
-        Serial.print("key: ");
-        Serial.println(key);
-        switch (key) {
-        case 1:
-          Keyboard.press(KEYPAD_1);    //change this line to modify functions.
-          break;
-        case 2:
-          Keyboard.press(KEYPAD_2);    //change this line to modify functions.
-          break;
-        case 3:
-          Keyboard.press(KEYPAD_3);    //change this line to modify functions.
-          break;
-        case 4:
-          Keyboard.press(KEYPAD_4);    //change this line to modify functions.
-          break;
-        case 5:
-          Keyboard.press(KEYPAD_5);    //change this line to modify functions.
-          break;
-        case 6:
-          Keyboard.press(KEYPAD_6);    //change this line to modify functions.
-          break;
-        case 7:
-          Keyboard.press(KEYPAD_7);    //change this line to modify functions.
-          break;
-        case 8:
-          Keyboard.press(KEYPAD_8);    //change this line to modify functions.
-          break;
-        case 9:
-          Keyboard.press(KEYPAD_9);    //change this line to modify functions.
-          break;
-
-        default:
-          break;
-        }
-        Keyboard.releaseAll();    //release all keys
-      }
-      break;
-
-    //layer 3
-    case 3:
-      //code for layer LEDs
-      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
-      strip.show();
-      //code for keypad
-      if(key){
-        Serial.print("key: ");
-        Serial.println(key);
-        switch (key) {
-        case 1:
-          Keyboard.print("layer 3 ");    //change this line to modify functions.
-          break;
-        case 2:
-          //code    //change this line to modify functions.
-          break;
-        case 3:
-          //code    //change this line to modify functions.
-          break;
-        case 4:
-          //code    //change this line to modify functions.
-          break;
-        case 5:
-          //code    //change this line to modify functions.
-          break;
-        case 6:
-          //code    //change this line to modify functions.
-          break;
-        case 7:
-          //code    //change this line to modify functions.
-          break;
-        case 8:
-          //code    //change this line to modify functions.
-          break;
-        case 9:
-          //code    //change this line to modify functions.
-          break;
-
-        default:
-          break;
-        }
-        Keyboard.releaseAll();    //release all keys
-      }
-      break;
-
-    default:
-      break;
   }
 }
 
