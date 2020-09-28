@@ -32,6 +32,7 @@ int getKey();
 
 //variable for layers
 int layer = 0;
+bool subLayer = false;
 
 //variables for rotary encoder
 #define outputA 2
@@ -208,19 +209,32 @@ void loop() {
     //layer 1
     case 1:
       strip.clear();
-      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      if(!subLayer){
+        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      } else {
+        strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+      }
       strip.show();
       break;
     //layer 2
     case 2:
       strip.clear();
-      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      if(!subLayer){
+        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+      } else {
+        strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
+      }
       strip.show();
       break;
     //layer 3
     case 3:
-      strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      if(!subLayer){
+        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+      } else {
+        strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
+        strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+      }
       strip.show();
       break;
       
@@ -369,31 +383,76 @@ void loop() {
           Serial.println(key);
           switch (key) {
             case 1:
-              Keyboard.press(KEYPAD_1);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_1);    //change this line to modify functions.
+              } else {
+                //sublayer
+                Keyboard.press(KEY_NUM_LOCK);    //change this line to modify functions.
+              }
               break;
             case 2:
-              Keyboard.press(KEYPAD_2);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_2);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 3:
-              Keyboard.press(KEYPAD_3);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_3);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 4:
-              Keyboard.press(KEYPAD_4);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_4);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 5:
-              Keyboard.press(KEYPAD_5);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_5);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 6:
-              Keyboard.press(KEYPAD_6);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_6);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 7:
-              Keyboard.press(KEYPAD_7);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_7);    //change this line to modify functions.
+              } else {
+                //sublayer
+                Keyboard.press(KEYPAD_0);    //change this line to modify functions.
+              }
               break;
             case 8:
-              Keyboard.press(KEYPAD_8);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_8);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
             case 9:
-              Keyboard.press(KEYPAD_9);    //change this line to modify functions.
+              if(!subLayer) {
+                Keyboard.press(KEYPAD_9);    //change this line to modify functions.
+              } else {
+                //sublayer
+                //code    //change this line to modify functions.
+              }
               break;
 
             default:
@@ -404,7 +463,7 @@ void loop() {
         
         //code for rotary encoder
         if(encoderClicked) {
-          Consumer.write(MEDIA_VOLUME_MUTE);
+          subLayer = !subLayer;
           encoderClicked = false;
         }
         switch (direction) {
