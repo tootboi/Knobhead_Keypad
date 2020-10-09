@@ -90,17 +90,6 @@ void setup() {
 }
 
 void loop() {
-  //code for NeoPixel
-
-  //code for capsLock led
-  if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-    strip.setPixelColor(0, strip.Color(187, 0, 255)); //for changing led0 color
-    strip.show();
-  } else {
-    strip.clear();
-    strip.show();
-  }
-
     //code for encoder btn
   btnState = digitalRead(encoderBtn);
   if(btnState == LOW) {
@@ -193,46 +182,83 @@ void loop() {
   switch(layer) {
     //layer 0
     case 0:
-      strip.clear();
-      strip.show();
+      if(subLayer) {
+        //sublayer
+        strip.clear();
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
+      } else {
+        //main
+        strip.clear();
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
+      }
       break;
     //layer 1
     case 1:
-      strip.clear();
       if(subLayer){
-        //sublayer
+        strip.clear();
         strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
       } else {
-        //main
+        strip.clear();
         strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
       }
-      strip.show();
       break;
     //layer 2
     case 2:
-      strip.clear();
       if(subLayer){
+        strip.clear();
         strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_NUM_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(125, 255, 199)); //for changing led0 color
+        }
       } else {
+        strip.clear();
         strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
       }
-      strip.show();
       break;
     //layer 3
     case 3:
       if(subLayer){
+        strip.clear();
         strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
         strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
       } else {
+        strip.clear();
         strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
         strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+        //code for led indicate
+        if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+        }
       }
-      strip.show();
       break;
       
     default:
       break;
   }
+  strip.show();
   
   if(millis() - lastPulse > pulseDebounce) {
     lastPulse = millis();
