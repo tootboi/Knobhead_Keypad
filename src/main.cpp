@@ -3,7 +3,7 @@
 #include <Adafruit_NeoPixel.h>
 
 //variables for NeoPixel
-#define ledStripPin 15
+#define ledStripPin A3
 #define ledCount 3
 
 Adafruit_NeoPixel strip(ledCount, ledStripPin, NEO_GRB + NEO_KHZ800);
@@ -18,8 +18,8 @@ int lastPressCount;
 const int rowNum = 3;
 const int colNum = 3;
 
-byte rowPins[rowNum] = {5, 6, 7};
-byte colPins[colNum] = {8, 9, 10};
+byte rowPins[rowNum] = {10, 9, 7};
+byte colPins[colNum] = {8, 14, 16};
 
 int getKey();
 
@@ -34,9 +34,11 @@ int getKey();
 int layer = 0;
 bool subLayer = false;
 
+void layerChange(byte sign);
+
 //variables for rotary encoder
-#define outputA 2
-#define outputB 3
+#define outputA A0
+#define outputB A2
 int counter = 0;
 int aState;
 int prevAState;
@@ -45,7 +47,7 @@ unsigned long lastPulse = 0;
 
 int getEncoderDirection();
 
-#define encoderBtn 16
+#define encoderBtn 15
 int btnState = 1;
 unsigned int pressFreq = 0;
 bool held = false;
@@ -60,7 +62,7 @@ unsigned long lastPress;    //needs to be long not int as int will overflow (rol
 unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
 bool released = false;
 bool rotated = false;
-bool encoderClicked = false;
+byte encoderClickType = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -91,8 +93,8 @@ void loop() {
   //code for NeoPixel
 
   //code for capsLock led
-  if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {
-    strip.setPixelColor(0, strip.Color(255, 255, 0));
+  if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
+    strip.setPixelColor(0, strip.Color(187, 0, 255)); //for changing led0 color
     strip.show();
   } else {
     strip.clear();
@@ -145,25 +147,14 @@ void loop() {
       //for debugging
     // Serial.print(clickCount);
     clickCount = 0;   //reset counter
-    //for changing layer
-    if(layer < 3) {
-      layer++;
-    } else {
-      layer = 0;
-    }
+    encoderClickType = 2;
       //for debugging
     Serial.print("Double click | ");
     Serial.print("Layer: ");
     Serial.println(layer);
   } else if(clickCount == 1 && timeElapsed >= longPressTiming && released && !rotated) {    //for long press
     clickCount = 0;
-    encoderClicked = false;
-    //change layer
-    if(layer == 0) {
-      layer = 3;
-    } else {
-      layer--;
-    }
+    encoderClickType = 3;
       //for debugging
     Serial.print("Long press | ");
     Serial.print("Layer: ");
@@ -173,8 +164,7 @@ void loop() {
     Serial.print(clickCount);
     Serial.print(" counts | timeElapsed: ");
     clickCount = 0;   //reset counter
-    // Consumer.write(MEDIA_VOLUME_MUTE);    //change this line to modify functions.
-    encoderClicked = true;
+    encoderClickType = 1;
       //for debugging
     Serial.print(timeElapsed);
     Serial.println(" single clicked");
@@ -209,31 +199,33 @@ void loop() {
     //layer 1
     case 1:
       strip.clear();
-      if(!subLayer){
-        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
-      } else {
+      if(subLayer){
+        //sublayer
         strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+      } else {
+        //main
+        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
       }
       strip.show();
       break;
     //layer 2
     case 2:
       strip.clear();
-      if(!subLayer){
-        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-      } else {
+      if(subLayer){
         strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
+      } else {
+        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
       }
       strip.show();
       break;
     //layer 3
     case 3:
-      if(!subLayer){
-        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
-      } else {
+      if(subLayer){
         strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
         strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+      } else {
+        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
       }
       strip.show();
       break;
@@ -255,36 +247,81 @@ void loop() {
           Serial.println(key);
           switch (key) {
             case 1:
-              Keyboard.print("layer 0 ");    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.print("layer 0 ");    //change this line to modify functions.
+              }
               break;
             case 2:
-              Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Consumer.write(CONSUMER_CALCULATOR);    //change this line to modify functions.
+              }
               break;
             case 3:
-              Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_PAGE_UP);    //change this line to modify functions.
+              }
               break;
             case 4:
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press('z');    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('z');    //change this line to modify functions.
+              }
               break;
             case 5:
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press('y');    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('y');    //change this line to modify functions.
+              }
               break;
             case 6:
-              Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_PAGE_DOWN);    //change this line to modify functions.
+              }
               break;
             case 7:
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press('x');    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('x');    //change this line to modify functions.
+              }
               break;
             case 8:
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press('c');    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('c');    //change this line to modify functions.
+              }
               break;
             case 9:
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press('v');    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('v');    //change this line to modify functions.
+              }
               break;
 
             default:
@@ -294,20 +331,58 @@ void loop() {
         }
         
         //code for rotary encoder
-        if(encoderClicked) {
-          Consumer.write(MEDIA_VOLUME_MUTE);
-          encoderClicked = false;
-        }
-        switch (direction) {
-          case 1:     //clockwise
-            Consumer.write(MEDIA_VOLUME_UP);
-            break;
-          case 2:     //anti-clockwise
-            Consumer.write(MEDIA_VOLUME_DOWN);
-            break;
+        if(encoderClickType) {
+          switch(encoderClickType) {
+            case 1: //single
+              if(subLayer) {
+                //sublayer
+                subLayer = !subLayer;
+              } else {
+                Consumer.write(MEDIA_VOLUME_MUTE);
+              }
+              break;
+            case 2: //double
+              if(subLayer) {
+                //sublayer
+                layerChange(0);
+              } else {
+                layerChange(0);
+              }
+              break;
+            case 3: //long
+              if(subLayer) {
+                //sublayer
+                layerChange(1);
+              } else {
+                layerChange(1);
+              }
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
+          encoderClickType = 0;
+        }
+        if(direction) {
+          switch (direction) {
+            case 1:     //clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_UP);
+              } else {
+                Consumer.write(MEDIA_VOLUME_UP);
+              }
+              break;
+            case 2:     //anti-clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              } else {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              }
+              break;
+
+            default:
+              break;
+          }
         }
         Keyboard.releaseAll();    //release all keys
         break;
@@ -320,34 +395,79 @@ void loop() {
           Serial.println(key);
           switch (key) {
             case 1:
-              Keyboard.print("layer 1 ");    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.print("layer 1 ");    //change this line to modify functions.
+              }
               break;
             case 2:
-              Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
-              Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
-              Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-              Keyboard.press(KEY_F1);    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEY_LEFT_SHIFT);    //change this line to modify functions.
+                Keyboard.press(KEY_LEFT_ALT);    //change this line to modify functions.
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press(KEY_F1);    //change this line to modify functions.
+              }
               break;
             case 3:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 4:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 5:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 6:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 7:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 8:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 9:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
 
             default:
@@ -357,20 +477,55 @@ void loop() {
         }
         
         //code for rotary encoder
-        if(encoderClicked) {
-          Consumer.write(MEDIA_VOLUME_MUTE);
-          encoderClicked = false;
-        }
-        switch (direction) {
-          case 1:     //clockwise
-            Consumer.write(MEDIA_VOLUME_UP);
-            break;
-          case 2:     //anti-clockwise
-            Consumer.write(MEDIA_VOLUME_DOWN);
-            break;
+        if(encoderClickType) {
+          switch(encoderClickType) {
+            case 1: //single
+              if(subLayer) {
+                subLayer = !subLayer;
+              } else {
+                Consumer.write(MEDIA_VOLUME_MUTE);
+              }
+              break;
+            case 2: //double
+              if(subLayer) {
+                layerChange(0);
+              } else {
+                layerChange(0);
+              }
+              break;
+            case 3: //long
+              if(subLayer) {
+                layerChange(1);
+              } else {
+                layerChange(1);
+              }
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
+          encoderClickType = 0;
+        }
+        if(direction) {
+          switch (direction) {
+            case 1:     //clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_UP);
+              } else {
+                Consumer.write(MEDIA_VOLUME_UP);
+              }
+              break;
+            case 2:     //anti-clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              } else {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              }              
+              break;
+
+            default:
+              break;
+          }
         }
         Keyboard.releaseAll();  
         break;
@@ -383,75 +538,75 @@ void loop() {
           Serial.println(key);
           switch (key) {
             case 1:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_1);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 Keyboard.press(KEY_NUM_LOCK);    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_1);    //change this line to modify functions.
               }
               break;
             case 2:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_2);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_2);    //change this line to modify functions.
               }
               break;
             case 3:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_3);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_3);    //change this line to modify functions.
               }
               break;
             case 4:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_4);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_4);    //change this line to modify functions.
               }
               break;
             case 5:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_5);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_5);    //change this line to modify functions.
               }
               break;
             case 6:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_6);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_6);    //change this line to modify functions.
               }
               break;
             case 7:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_7);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 Keyboard.press(KEYPAD_0);    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_7);    //change this line to modify functions.
               }
               break;
             case 8:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_8);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_8);    //change this line to modify functions.
               }
               break;
             case 9:
-              if(!subLayer) {
-                Keyboard.press(KEYPAD_9);    //change this line to modify functions.
-              } else {
+              if(subLayer) {
                 //sublayer
                 //code    //change this line to modify functions.
+              } else {
+                Keyboard.press(KEYPAD_9);    //change this line to modify functions.
               }
               break;
 
@@ -462,22 +617,57 @@ void loop() {
         }
         
         //code for rotary encoder
-        if(encoderClicked) {
-          subLayer = !subLayer;
-          encoderClicked = false;
-        }
-        switch (direction) {
-          case 1:     //clockwise
-            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-            Keyboard.press('+');    //change this line to modify functions.
-            break;
-          case 2:     //anti-clockwise
-            Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-            Keyboard.press('-');    //change this line to modify functions.
-            break;
+        if(encoderClickType) {
+          switch(encoderClickType) {
+            case 1: //single
+              if(subLayer) {
+                subLayer = !subLayer;
+              } else {
+                subLayer = !subLayer;
+              }              
+              break;
+            case 2: //double
+              if(subLayer) {
+                layerChange(0);
+              } else {
+                layerChange(0);
+              }              
+              break;
+            case 3: //long
+              if(subLayer) {
+                layerChange(1);
+              } else {
+                layerChange(1);
+              }              
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
+          encoderClickType = 0;
+        }
+        if(direction) {
+          switch (direction) {
+            case 1:     //clockwise
+              if(subLayer) {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('+');    //change this line to modify functions.
+              } else {
+                Consumer.write(MEDIA_VOLUME_UP);
+              }
+              break;
+            case 2:     //anti-clockwise
+              if(subLayer) {
+                Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
+                Keyboard.press('-');    //change this line to modify functions.
+              } else {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              }
+              break;
+
+            default:
+              break;
+          }
         }
         Keyboard.releaseAll(); 
         break;
@@ -490,31 +680,76 @@ void loop() {
           Serial.println(key);
           switch (key) {
             case 1:
-              Keyboard.print("layer 3 ");    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                Keyboard.print("layer 3 ");    //change this line to modify functions.
+              }
               break;
             case 2:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 3:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 4:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 5:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 6:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 7:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 8:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
             case 9:
-              //code    //change this line to modify functions.
+              if(subLayer) {
+                //sublayer
+                //code    //change this line to modify functions.
+              } else {
+                //code    //change this line to modify functions.
+              }
               break;
 
             default:
@@ -524,20 +759,55 @@ void loop() {
         }
         
         //code for rotary encoder
-        if(encoderClicked) {
-          Keyboard.print("layer 3 encoderBtn ");
-          encoderClicked = false;
-        }
-        switch (direction) {
-          case 1:     //clockwise
-            Mouse.move(0, 0, -1);     //change this line to modify functions.
-            break;
-          case 2:     //anti-clockwise
-            Mouse.move(0, 0, 1);     //change this line to modify functions.
-            break;
+        if(encoderClickType) {
+          switch(encoderClickType) {
+            case 1: //single
+              if(subLayer) {
+                subLayer = !subLayer;
+              } else {
+                Consumer.write(MEDIA_VOLUME_MUTE);
+              }
+              break;
+            case 2: //double
+              if(subLayer) {
+                layerChange(0);
+              } else {
+                layerChange(0);
+              }              
+              break;
+            case 3: //long
+              if(subLayer) {
+                layerChange(1);
+              } else {
+                layerChange(1);
+              }              
+              break;
 
-          default:
-            break;
+            default:
+              break;
+          }
+          encoderClickType = 0;
+        }
+        if(direction) {
+          switch (direction) {
+            case 1:     //clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_UP);
+              } else {
+                Mouse.move(0, 0, -1);     //change this line to modify functions.
+              }
+              break;
+            case 2:     //anti-clockwise
+              if(subLayer) {
+                Consumer.write(MEDIA_VOLUME_DOWN);
+              } else {
+                Mouse.move(0, 0, 1);     //change this line to modify functions.
+              }
+              break;
+
+            default:
+              break;
+          }
         }
         Keyboard.releaseAll();  
         break;
@@ -548,6 +818,7 @@ void loop() {
   }
 }
 
+///custom functions
 int getKey() {
   int currKey=0;
   pressCount = 0;
@@ -601,4 +872,26 @@ int getEncoderDirection() {
   }
   prevAState = aState;
   return(direction);
+}
+
+void layerChange(byte sign) {
+  switch(sign) {
+    case 0: //increase layer
+      if(layer < 3) {
+        layer++;
+      } else {
+        layer = 0;
+      }
+      break;
+    case 1: //decrease layer
+      if(layer == 0) {
+        layer = 3;
+      } else {
+        layer--;
+      }
+      break;
+    
+    default:
+      break;
+  }
 }
