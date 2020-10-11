@@ -35,6 +35,7 @@ int layer = 0;
 bool subLayer = false;
 
 void layerChange(byte sign);
+void checkBit(byte layer, byte bit, byte led, uint32_t rgb);
 
 //variables for rotary encoder
 #define outputA A0
@@ -185,16 +186,26 @@ void loop() {
       if(subLayer) {
         //sublayer
         strip.clear();
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 0, 255);
+        uint32_t color2 = strip.Color(0, 0, 255);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       } else {
         //main
         strip.clear();
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 255, 0);
+        uint32_t color2 = strip.Color(0, 255, 0);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       }
       break;
@@ -202,17 +213,25 @@ void loop() {
     case 1:
       if(subLayer){
         strip.clear();
-        strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 0, 255);
+        uint32_t color2 = strip.Color(0, 0, 255);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       } else {
         strip.clear();
-        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 255, 0);
+        uint32_t color2 = strip.Color(0, 255, 0);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       }
       break;
@@ -220,17 +239,25 @@ void loop() {
     case 2:
       if(subLayer){
         strip.clear();
-        strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
+        uint32_t color0 = strip.Color(0, 113, 128);
+        uint32_t color1 = strip.Color(0, 0, 255);
+        uint32_t color2 = strip.Color(0, 0, 255);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_NUM_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(125, 255, 199)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       } else {
         strip.clear();
-        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 255, 0);
+        uint32_t color2 = strip.Color(0, 255, 0);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       }
       break;
@@ -238,19 +265,25 @@ void loop() {
     case 3:
       if(subLayer){
         strip.clear();
-        strip.setPixelColor(1, strip.Color(0, 0, 255));   //bit1
-        strip.setPixelColor(2, strip.Color(0, 0, 255));   //bit0
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 0, 255);
+        uint32_t color2 = strip.Color(0, 0, 255);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       } else {
         strip.clear();
-        strip.setPixelColor(1, strip.Color(0, 255, 0));   //bit1
-        strip.setPixelColor(2, strip.Color(0, 255, 0));   //bit0
+        uint32_t color0 = strip.Color(255, 255, 0);
+        uint32_t color1 = strip.Color(0, 255, 0);
+        uint32_t color2 = strip.Color(0, 255, 0);
+        checkBit(layer, 1, 1, color1);
+        checkBit(layer, 0, 2, color2);
         //code for led indicate
         if(BootKeyboard.getLeds() & LED_CAPS_LOCK) {  //for changing what led0 indicates
-          strip.setPixelColor(0, strip.Color(255, 255, 0)); //for changing led0 color
+          strip.setPixelColor(0, color0); //for changing led0 color
         }
       }
       break;
@@ -302,7 +335,7 @@ void loop() {
                 //code    //change this line to modify functions.
               } else {
                 Keyboard.press(KEY_LEFT_CTRL);    //change this line to modify functions.
-                Keyboard.press('z');    //change this line to modify functions.
+                Keyboard.print("z");    //change this line to modify functions.
               }
               break;
             case 5:
@@ -915,6 +948,29 @@ void layerChange(byte sign) {
       } else {
         layer--;
       }
+      break;
+    
+    default:
+      break;
+  }
+}
+
+void checkBit(byte layer, byte bit, byte led, uint32_t rgb) {
+  switch(layer) {
+    case 0:
+      break;
+    case 1:
+      if(bit==0) {
+        strip.setPixelColor(led, rgb);   //bit0
+      }
+      break;
+    case 2:
+      if(bit==1) {
+        strip.setPixelColor(led, rgb);   //bit1
+      }
+      break;
+    case 3:
+      strip.setPixelColor(led, rgb);   //bit0 and bit1
       break;
     
     default:
