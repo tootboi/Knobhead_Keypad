@@ -38,12 +38,12 @@ void layerChange(byte sign);
 void checkBit(byte layer, byte bit, byte led, uint32_t rgb);
 
 //variables for rotary encoder
-#define outputA A0
-#define outputB A2
+#define outputA A2
+#define outputB A0
 int counter = 0;
 int aState;
 int prevAState;
-const int pulseDebounce = 1;
+const int pulseDebounce = 0;
 unsigned long lastPulse = 0;
 
 int getEncoderDirection();
@@ -74,8 +74,8 @@ void setup() {
   strip.setBrightness(15);
 
   //setup for keypad matrix
-  for(byte r=0; r<rowNum; r++) {
-    pinMode(rowPins[r], INPUT_PULLUP);
+  for(byte c=0; c<colNum; c++) {
+    pinMode(colPins[c], INPUT_PULLUP);
   }
 
   //setup for rotarty encoder
@@ -138,17 +138,9 @@ void loop() {
     // Serial.print(clickCount);
     clickCount = 0;   //reset counter
     encoderClickType = 2;
-      //for debugging
-    Serial.print("Double click | ");
-    Serial.print("Layer: ");
-    Serial.println(layer);
   } else if(clickCount == 1 && timeElapsed >= longPressTiming && released && !rotated) {    //for long press
     clickCount = 0;
     encoderClickType = 3;
-      //for debugging
-    Serial.print("Long press | ");
-    Serial.print("Layer: ");
-    Serial.println(layer);
   } else if(clickCount == 1 && timeElapsed >= doubleClickTiming && !held && !rotated) {    //for single click
       //for debugging
     Serial.print(clickCount);
@@ -428,6 +420,7 @@ void loop() {
               if(subLayer) {
                 Consumer.write(MEDIA_VOLUME_UP);
               } else {
+                Serial.println("clockwise");
                 Consumer.write(MEDIA_VOLUME_UP);
               }
               break;
@@ -435,6 +428,7 @@ void loop() {
               if(subLayer) {
                 Consumer.write(MEDIA_VOLUME_DOWN);
               } else {
+                Serial.println("anti-clockwise");
                 Consumer.write(MEDIA_VOLUME_DOWN);
               }
               break;
@@ -879,31 +873,26 @@ void loop() {
 
 ///custom functions
 int getKey() {
-  int currKey=0;
+  int currKey = 0;
   pressCount = 0;
-  if((millis() - prevPressTimeKeypad) > matrixDebounce) {
-    prevPressTimeKeypad = millis();
-    for(byte c=0; c<colNum; c++) {
-      //pulse col.
-      pinMode(colPins[c], OUTPUT);
-      digitalWrite(colPins[c], LOW);
-      for(byte r=0; r<rowNum; r++) {
-        //check if btn is pressed.
-        if(digitalRead(rowPins[r]) == 0) {
+  if(millis() - prevPressTimeKeypad > matrixDebounce) {
+    for(byte r=0; r<rowNum; r++) {
+      pinMode(rowPins[r], OUTPUT);
+      digitalWrite(rowPins[r], LOW);
+      for(byte c=0; c<colNum; c++) {
+        //check if btn pressed is the same as last.
+        if(digitalRead(colPins[c]) == 0) {
           pressCount++;
-          //pressCount==1 limits concurrent btn press to 1.
-          //lastPressCount==0 ensures that all btns were released.
-          if(pressCount == 1 && lastPressCount == 0) {
+          if(pressCount==1 && lastPressCount==0) {
             currKey = c+colNum*r+1;
             break;
           }
         }
       }
-      //end col pulse.
-      digitalWrite(colPins[c], HIGH);
-      pinMode(colPins[c], INPUT);
+      digitalWrite(rowPins[r], HIGH);
+      pinMode(rowPins[r], INPUT);
     }
-    //save current pressCount.
+    prevPressTimeKeypad = millis();
     lastPressCount = pressCount;
   }
   return(currKey);
