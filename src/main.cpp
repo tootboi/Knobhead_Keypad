@@ -40,13 +40,10 @@ void checkBit(byte layer, byte bit, byte led, uint32_t rgb);
 //variables for rotary encoder
 #define outputA A2
 #define outputB A0
-int counter = 0;
-int aState;
-int prevAState;
 const int pulseDebounce = 0;
 unsigned long lastPulse = 0;
 
-int getEncoderDirection();
+uint8_t tableDecode();
 
 #define encoderBtn 15
 int btnState = 1;
@@ -79,9 +76,8 @@ void setup() {
   }
 
   //setup for rotarty encoder
-  pinMode(outputA,INPUT_PULLUP);
-  pinMode(outputB,INPUT_PULLUP);
-  prevAState = digitalRead(outputA);
+  pinMode(outputA, INPUT_PULLUP);
+  pinMode(outputB, INPUT_PULLUP);
   pinMode(encoderBtn, INPUT_PULLUP);
 
   Consumer.begin(); //For writing media keys.
@@ -153,7 +149,7 @@ void loop() {
   } else if(held) {
     if(millis() - lastPulse > pulseDebounce) {
       lastPulse = millis();
-      int direction = getEncoderDirection();
+      int direction = tableDecode();
       if(direction) {
         rotated = true;
       }
@@ -287,7 +283,7 @@ void loop() {
   
   if(millis() - lastPulse > pulseDebounce) {
     lastPulse = millis();
-    int direction = getEncoderDirection();
+    int direction = tableDecode();
     int key = getKey();
     switch (layer) {
       //layer 0
@@ -898,28 +894,29 @@ int getKey() {
   return(currKey);
 }
 
-int getEncoderDirection() {
-  int direction = 0;
-  aState = digitalRead(outputA);
-  if(aState != prevAState) {
-      //for debugging
-    //Serial.println("pulse");
-    if(digitalRead(outputB) != aState) {
-      counter ++;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        direction = 1;
-      }
-    } else {
-      counter --;
-      if((counter % 2) == 0) {        //needed as my rotary encoder sends two pulse per detent
-        direction = 2;
-      }
+uint8_t tableDecode() {
+  static uint8_t prevStates = 0;
+  static uint8_t validation = 0;    //for validating if last two prevStates are valid
+  static int8_t encoderLUT[] = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0};
+
+  prevStates <<= 2;
+  if(digitalRead(outputA)) prevStates |= 0x01;
+  if(digitalRead(outputB)) prevStates |= 0x02;
+  prevStates &= 0xf;    //this removes bits beyond 4 bits, that were created by the bit shift
+
+  int8_t decodedVal = encoderLUT[prevStates];
+  if(decodedVal) {
+    validation <<= 4;
+    validation |= prevStates;
+    if(validation==23) {    //BINARY 00010111
+      Serial.println("CW");
+      return 1;
+    } else if(validation==43) {   //BINARY 00101011
+      Serial.println("CCW");
+      return 2;
     }
-      //for debugging
-    //Serial.println(direction);
   }
-  prevAState = aState;
-  return(direction);
+  return 0;
 }
 
 void layerChange(byte sign) {
