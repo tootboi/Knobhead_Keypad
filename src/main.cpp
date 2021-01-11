@@ -723,7 +723,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              Keyboard.print("layer 3 ");    //change this line to modify functions.
+              Keyboard.print("1");    //change this line to modify functions.
             }
             break;
           case 2:
@@ -731,7 +731,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("2");    //change this line to modify functions.
             }
             break;
           case 3:
@@ -739,7 +739,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("3");   //change this line to modify functions.
             }
             break;
           case 4:
@@ -747,7 +747,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("4");    //change this line to modify functions.
             }
             break;
           case 5:
@@ -755,7 +755,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("5");    //change this line to modify functions.
             }
             break;
           case 6:
@@ -763,7 +763,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("6");    //change this line to modify functions.
             }
             break;
           case 7:
@@ -771,7 +771,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("7");    //change this line to modify functions.
             }
             break;
           case 8:
@@ -779,7 +779,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("8");    //change this line to modify functions.
             }
             break;
           case 9:
@@ -787,7 +787,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              Keyboard.print("9");    //change this line to modify functions.
             }
             break;
 
@@ -861,9 +861,9 @@ int getKey() {
   static uint8_t lastKey;
   static uint8_t prevKeyStates[] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   static uint16_t keyHoldBuffer = 0;
-  static uint16_t bufferThreshold = 4500;   //change this value to adjust timing of repeating key
+  static uint16_t bufferThreshold = 1300;   //change this value to adjust timing of repeating key
   static uint16_t repeatFreq = 0;
-  static uint16_t freqThreshold = 300;    //change this value to adjust timing of repeat freq
+  static uint16_t freqThreshold = 80;    //change this value to adjust timing of repeat freq
   int currKey = 0;
 
   for(byte r=0; r<rowNum; r++) {
