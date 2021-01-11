@@ -155,10 +155,10 @@ void loop() {
       }
       switch(direction) {
         case 1:
-          Serial.println("held clockwise");
+          //Serial.println("held clockwise");
           break;
         case 2:
-          Serial.println("held anti-clockwise");
+          //Serial.println("held anti-clockwise");
           break;
 
         default:
@@ -416,7 +416,6 @@ void loop() {
               if(subLayer) {
                 Consumer.write(MEDIA_VOLUME_UP);
               } else {
-                Serial.println("clockwise");
                 Consumer.write(MEDIA_VOLUME_UP);
               }
               break;
@@ -424,7 +423,6 @@ void loop() {
               if(subLayer) {
                 Consumer.write(MEDIA_VOLUME_DOWN);
               } else {
-                Serial.println("anti-clockwise");
                 Consumer.write(MEDIA_VOLUME_DOWN);
               }
               break;
@@ -898,6 +896,7 @@ uint8_t tableDecode() {
   static uint8_t prevStates = 0;
   static uint8_t validation = 0;    //for validating if last two prevStates are valid
   static int8_t encoderLUT[] = {0,1,-1,0,-1,0,0,1,1,0,0,-1,0,-1,1,0};
+  static int8_t counterTest =  0;
 
   prevStates <<= 2;
   if(digitalRead(outputA)) prevStates |= 0x01;
@@ -909,10 +908,16 @@ uint8_t tableDecode() {
     validation <<= 4;
     validation |= prevStates;
     if(validation==23) {    //BINARY 00010111
-      Serial.println("CW");
+      Serial.print("CW  | ");
+      Serial.print("counter: ");
+      Serial.println(counterTest);
+      counterTest++;
       return 1;
     } else if(validation==43) {   //BINARY 00101011
-      Serial.println("CCW");
+      Serial.print("CCW | ");
+      Serial.print("counter: ");
+      Serial.println(counterTest);
+      counterTest--;
       return 2;
     }
   }
