@@ -2,6 +2,12 @@
 #include <HID-Project.h>
 #include <Adafruit_NeoPixel.h>
 
+//variables for LED timeout
+const unsigned long timeout = 60000;   //timeout in millisecond. change this value to adjust timeout
+unsigned long idleTime;
+bool idleStart = false;
+bool idle = false;
+
 //variables for NeoPixel
 #define ledStripPin A3
 #define ledCount 3
@@ -62,7 +68,6 @@ void setup() {
   //setup for NeoPixel
   strip.begin();
   strip.show();
-  strip.setBrightness(15);
 
   //setup for keypad matrix
   for(byte c=0; c<colNum; c++) {
@@ -81,10 +86,17 @@ void setup() {
 }
 
 void loop() {
+  //for timeout
+  bool noInput = true;
+
     //code for encoder btn
   btnState = digitalRead(encoderBtn);
   if(btnState == LOW) {
     if((millis() - lastPress) > debounce) {
+      //for timeout
+      noInput = false;
+      idleStart = true;
+      idle = false;
         //for debugging
       // Serial.print("Time now: ");
       // Serial.print(millis());
@@ -162,6 +174,7 @@ void loop() {
   }
 
   //code for layer leds
+  if(!idle) strip.setBrightness(12);
   switch(layer) {
     //layer 0
     case 0:
@@ -277,6 +290,9 @@ void loop() {
   
   int direction = tableDecode();
   int key = getKey();
+  //for timeout
+  if(key || direction) noInput = false, idleStart = true, idle = false;
+
   switch (layer) {
     //layer 0
     case 0:
@@ -853,6 +869,15 @@ void loop() {
 
     default:
       break;
+  }
+
+  //for timeout
+  if(idleStart) idleTime = millis(), idleStart = false;
+  if(noInput && millis() - idleTime > timeout) {
+    idle = true;
+    //dim LEDs
+    strip.setBrightness(1);
+    //Serial.println("timed out!!!");
   }
 }
 
