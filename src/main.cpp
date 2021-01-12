@@ -862,8 +862,8 @@ int getKey() {
   static uint8_t prevKeyStates[] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   static uint16_t keyHoldBuffer = 0;
   static uint16_t bufferThreshold = 1300;   //change this value to adjust timing of repeating key
-  static uint16_t repeatFreq = 0;
-  static uint16_t freqThreshold = 80;    //change this value to adjust timing of repeat freq
+  static uint16_t repeatBuffer = 0;
+  static uint16_t repeatThreshold = 80;    //change this value to adjust timing of repeat freq
   int currKey = 0;
 
   for(byte r=0; r<rowNum; r++) {
@@ -883,8 +883,8 @@ int getKey() {
           //if key is held down, repeatedly send the key
           if(keyHoldBuffer >= bufferThreshold) {
             //this slows the frequency of repeated keys
-            if(repeatFreq >= freqThreshold) currKey = c+colNum*r+1, repeatFreq = 0;
-            else repeatFreq++;
+            if(repeatBuffer >= repeatThreshold) currKey = c+colNum*r+1, repeatBuffer = 0;
+            else repeatBuffer++;
           } else {
             keyHoldBuffer++;
           }
