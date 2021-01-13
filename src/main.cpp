@@ -46,21 +46,8 @@ unsigned long lastPulse = 0;
 uint8_t tableDecode();
 
 #define encoderBtn 15
-int btnState = 1;
-unsigned int pressFreq = 0;
-bool held = false;
-unsigned int timeElapsed;
-unsigned int pressTime;
-unsigned int prevPressTime;
-int clickCount = 0;
-unsigned int currTime;
-unsigned int doubleClickTiming = 300;    //change this value to adjust the timing of double clicks.
-const int debounce = 20;
-unsigned long lastPress;    //needs to be long not int as int will overflow (rolls over) and cause problems.
-unsigned int longPressTiming = 500;   //change this value to adjust long press timing.
-bool released = false;
-bool rotated = false;
-byte encoderClickType = 0;
+
+uint8_t getClick();
 
 void setup() {
   Serial.begin(9600);
@@ -88,90 +75,6 @@ void setup() {
 void loop() {
   //for timeout
   bool noInput = true;
-
-    //code for encoder btn
-  btnState = digitalRead(encoderBtn);
-  if(btnState == LOW) {
-    if((millis() - lastPress) > debounce) {
-      //for timeout
-      noInput = false;
-      idleStart = true;
-      idle = false;
-        //for debugging
-      // Serial.print("Time now: ");
-      // Serial.print(millis());
-      // Serial.print(" | Lastpress: ");
-      // Serial.print(lastPress);
-      // Serial.print(" | time between: ");
-      // Serial.println(millis() - lastPress);
-      //update lastPress
-      lastPress = millis();
-      if(held == false) {
-        if(rotated) {
-          rotated = false;
-          clickCount = 0;
-        }
-          //pressFreq logic does not have problems with int overflow (roll over).
-          //as pressTime and prevPressTime are same data types and their negation gets assigned
-          //to same data type (pressFreq).
-        pressTime = millis();
-        if(clickCount > 0) {
-          pressFreq = pressTime - prevPressTime;
-        }
-        prevPressTime = pressTime;
-        clickCount++;
-        }
-      held = true;
-    }
-  } else {
-    if(held) {
-      released = true;
-    } else {
-      released = false;
-    }
-    held = false;
-  }
-
-  currTime = millis();
-  timeElapsed = currTime - pressTime;   //time elapsed since last btn press
-
-  if(clickCount == 2 && pressFreq < doubleClickTiming && !held && !rotated) {    //for double click.
-      //for debugging
-    // Serial.print(clickCount);
-    clickCount = 0;   //reset counter
-    encoderClickType = 2;
-  } else if(clickCount == 1 && timeElapsed >= longPressTiming && released && !rotated) {    //for long press
-    clickCount = 0;
-    encoderClickType = 3;
-  } else if(clickCount == 1 && timeElapsed >= doubleClickTiming && !held && !rotated) {    //for single click
-      //for debugging
-    Serial.print(clickCount);
-    Serial.print(" counts | timeElapsed: ");
-    clickCount = 0;   //reset counter
-    encoderClickType = 1;
-      //for debugging
-    Serial.print(timeElapsed);
-    Serial.println(" single clicked");
-  } else if(held) {
-    if(millis() - lastPulse > pulseDebounce) {
-      lastPulse = millis();
-      int direction = tableDecode();
-      if(direction) {
-        rotated = true;
-      }
-      switch(direction) {
-        case 1:
-          //Serial.println("held clockwise");
-          break;
-        case 2:
-          //Serial.println("held anti-clockwise");
-          break;
-
-        default:
-          break;
-      }
-    }
-  }
 
   //code for layer leds
   if(!idle) strip.setBrightness(12);
@@ -288,10 +191,11 @@ void loop() {
   }
   strip.show();
   
-  int direction = tableDecode();
-  int key = getKey();
+  uint8_t clickType = getClick();
+  uint8_t direction = tableDecode();
+  uint8_t key = getKey();
   //for timeout
-  if(key || direction) noInput = false, idleStart = true, idle = false;
+  if(key || direction || clickType) noInput = false, idleStart = true, idle = false;
 
   switch (layer) {
     //layer 0
@@ -386,8 +290,8 @@ void loop() {
       }
       
       //code for rotary encoder
-      if(encoderClickType) {
-        switch(encoderClickType) {
+      if(clickType) {
+        switch(clickType) {
           case 1: //single
             if(subLayer) {
               //sublayer
@@ -416,7 +320,7 @@ void loop() {
           default:
             break;
         }
-        encoderClickType = 0;
+        clickType = 0;
       }
       if(direction) {
         switch (direction) {
@@ -532,8 +436,8 @@ void loop() {
       }
       
       //code for rotary encoder
-      if(encoderClickType) {
-        switch(encoderClickType) {
+      if(clickType) {
+        switch(clickType) {
           case 1: //single
             if(subLayer) {
               subLayer = !subLayer;
@@ -559,7 +463,7 @@ void loop() {
           default:
             break;
         }
-        encoderClickType = 0;
+        clickType = 0;
       }
       if(direction) {
         switch (direction) {
@@ -672,8 +576,8 @@ void loop() {
       }
       
       //code for rotary encoder
-      if(encoderClickType) {
-        switch(encoderClickType) {
+      if(clickType) {
+        switch(clickType) {
           case 1: //single
             if(subLayer) {
               subLayer = !subLayer;
@@ -699,7 +603,7 @@ void loop() {
           default:
             break;
         }
-        encoderClickType = 0;
+        clickType = 0;
       }
       if(direction) {
         switch (direction) {
@@ -814,8 +718,8 @@ void loop() {
       }
       
       //code for rotary encoder
-      if(encoderClickType) {
-        switch(encoderClickType) {
+      if(clickType) {
+        switch(clickType) {
           case 1: //single
             if(subLayer) {
               subLayer = !subLayer;
@@ -841,7 +745,7 @@ void loop() {
           default:
             break;
         }
-        encoderClickType = 0;
+        clickType = 0;
       }
       if(direction) {
         switch (direction) {
@@ -882,6 +786,54 @@ void loop() {
 }
 
 ///custom functions
+uint8_t getClick() {
+  uint8_t clickType = 0;    //1==single, 2==double, 3==long
+  static const int longPressTiming = 500;   //change this value to adjust long press timing.
+  static const int doubleClickTiming = 300;    //change this value to adjust the timing of double clicks.
+  static uint8_t clickState = HIGH;
+  static uint8_t prevClickState = HIGH;
+  static uint8_t clickCount = 0;
+  static unsigned long lastPress;    //needs to be long not int, as int will overflow.
+  static unsigned int clickTime;
+  static unsigned int prevClickTime;
+  static unsigned int pressFreq = 0;    //time between clicks
+  static unsigned int timeElapsed;
+  static const uint8_t clickDebounce = 20;
+
+  clickState = digitalRead(encoderBtn);
+  if(clickState == LOW) {
+    if((millis() - lastPress) > clickDebounce) {
+      lastPress = millis();
+      //detect falling edge
+      if(prevClickState == HIGH) {
+        clickTime = millis();
+        if(clickCount) {
+          pressFreq = clickTime - prevClickTime;
+        }
+        prevClickTime = clickTime;
+        clickCount++;
+        }
+      prevClickState = clickState;
+    }
+  } else {
+    prevClickState = clickState;
+  }
+
+  timeElapsed = millis() - clickTime;   //time elapsed since click. could overflow if click held for a long long time.
+
+  if(clickCount==1 && timeElapsed < longPressTiming && timeElapsed >= doubleClickTiming && prevClickState) {    //for single click
+    clickCount = 0;
+    clickType = 1;
+  } else if(clickCount==2 && pressFreq < doubleClickTiming && prevClickState) {    //for double click.
+    clickCount = 0;
+    clickType = 2;
+  } else if(clickCount==1 && timeElapsed >= longPressTiming && prevClickState) {    //for long press
+    clickCount = 0;
+    clickType = 3;
+  }
+  return clickType;
+}
+
 int getKey() {
   static uint8_t lastKey;
   static uint8_t prevKeyStates[] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
