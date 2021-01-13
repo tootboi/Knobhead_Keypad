@@ -7,6 +7,7 @@ const unsigned long timeout = 60000;   //timeout in millisecond. change this val
 unsigned long idleTime;
 bool idleStart = false;
 bool idle = false;
+bool rainbow = false;
 
 //variables for NeoPixel
 #define ledStripPin A3
@@ -189,7 +190,6 @@ void loop() {
     default:
       break;
   }
-  strip.show();
   
   uint8_t clickType = getClick();
   uint8_t direction = tableDecode();
@@ -377,7 +377,7 @@ void loop() {
               //sublayer
               //code    //change this line to modify functions.
             } else {
-              //code    //change this line to modify functions.
+              rainbow = !rainbow;    //change this line to modify functions.
             }
             break;
           case 4:
@@ -779,10 +779,27 @@ void loop() {
   if(idleStart) idleTime = millis(), idleStart = false;
   if(noInput && millis() - idleTime > timeout) {
     idle = true;
-    //dim LEDs
-    strip.setBrightness(1);
-    //Serial.println("timed out!!!");
+    if(rainbow) {
+      static long j = 0;
+      if(j<65536) {
+        strip.clear();
+        strip.setBrightness(30);
+        strip.setPixelColor(0, strip.gamma32(strip.ColorHSV(j + (2-0) * 3000)));
+        strip.setPixelColor(1, strip.gamma32(strip.ColorHSV(j + (2-1) * 3000)));
+        strip.setPixelColor(2, strip.gamma32(strip.ColorHSV(j + (2-2) * 3000)));
+        strip.show();
+        j+=256;
+        delay(10);
+      } else {
+        j = 0;
+      }
+    } else {
+      //dim LEDs
+      strip.setBrightness(1);
+    }
   }
+
+  strip.show();
 }
 
 ///custom functions
