@@ -8,6 +8,7 @@ unsigned long idleTime;
 bool idleStart = false;
 bool idle = false;
 bool rainbow = false;
+bool timeoutEnabled = true;
 
 //variables for NeoPixel
 #define ledStripPin A3
@@ -777,7 +778,7 @@ void loop() {
 
   //for timeout
   if(idleStart) idleTime = millis(), idleStart = false;
-  if(noInput && millis() - idleTime > timeout) {
+  if(noInput && millis() - idleTime > timeout && timeoutEnabled) {
     idle = true;
     if(rainbow) {
       static long j = 0;
